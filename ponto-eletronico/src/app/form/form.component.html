@@ -1,0 +1,9 @@
+<po-page-edit
+    (p-cancel)="onCancelClick()"
+    [p-disable-submit]="false"
+    (p-save)="onSaveClick()"
+    p-title="Cadastro de usuário" >
+
+    <po-dynamic-form #dynamicForm [p-fields]="formFields"></po-dynamic-form>
+
+</po-page-edit>

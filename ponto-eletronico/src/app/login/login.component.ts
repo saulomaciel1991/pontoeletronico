@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { PoPageLoginLiterals } from '@po-ui/ng-templates';
 
 @Component({
@@ -20,7 +21,7 @@ export class LoginComponent implements OnInit {
 
 
 
-  constructor() { }
+  constructor(private router: Router) { }
 
   checkLogin(formData: any) {
     this.loading = true;
@@ -31,8 +32,8 @@ export class LoginComponent implements OnInit {
       this.loginErrors = [];
 
       setTimeout(() => {
-        
-      }, 3000);
+        this.router.navigate(['/home'])
+      }, 2000);
     } else {
       this.loading = false;
       this.passwordErrors = ['Senha e/ou usuário inválido, verifique e tente novamente.'];
