@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { PoPageLoginLiterals } from '@po-ui/ng-templates';
+import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -21,17 +22,19 @@ export class LoginComponent implements OnInit {
 
 
 
-  constructor(private router: Router) { }
+  constructor(private router: Router, private auth: AuthService) { }
 
   checkLogin(formData: any) {
     this.loading = true;
 
     if (formData.login === 'devpo' && formData.password === '1986') {
+
       this.passwordErrors = [];
       //this.exceededAttempts = 0;
       this.loginErrors = [];
 
       setTimeout(() => {
+        this.auth.isLoggedIn = true
         this.router.navigate(['/home'])
       }, 2000);
     } else {
