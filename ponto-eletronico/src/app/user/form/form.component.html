@@ -1,0 +1,19 @@
+<po-modal #poModal
+    p-title="Cadastro"
+    [p-hide-close]="true">
+
+    <form #dynamicForm="ngForm">
+
+        <po-dynamic-form
+            [p-value]="user"
+            [p-group-form]="true"
+            [p-fields]="formFields">
+        </po-dynamic-form>
+
+        <po-modal-footer [p-disabled-align]="false">
+            <po-button [p-danger]="true" p-label="Fechar" (p-click)="fechar()"> </po-button>
+            <!-- <po-button p-label="Limpar" (p-click)="limpar()"> </po-button> -->
+            <po-button p-kind="primary" p-label="Confirmar" (p-click)="confirmar()"> </po-button>
+        </po-modal-footer>
+    </form>
+</po-modal>
