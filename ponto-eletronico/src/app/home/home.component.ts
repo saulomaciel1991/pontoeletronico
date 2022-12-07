@@ -11,8 +11,8 @@ export class HomeComponent implements OnInit {
   constructor() { }
 
   public readonly menus: Array<PoMenuItem> = [
-    { label: 'Marcação de Pontos', icon: "po-icon-device-desktop" },
-    { label: 'Alterar Senha', icon: "po-icon-database" }
+    { label: 'Pontos', link: '/user/list', icon: "po-icon-calendar-ok", shortLabel: 'Pontos' },
+    { label: 'Editar usuário', icon: "po-icon-edit", shortLabel: 'Editar' }
   ];
 
   ngOnInit(): void {

@@ -1,23 +1,27 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+import { PoPageDynamicSearchModule } from '@po-ui/ng-templates';
 import {
   PoMenuModule,
   PoPageModule,
   PoDynamicModule,
   PoModalModule,
   PoButtonModule,
-  PoFieldModule
+  PoFieldModule,
+  PoTableModule
 } from '@po-ui/ng-components';
 
 @NgModule({
   declarations: [],
   imports: [
     CommonModule,
-    PoMenuModule, PoPageModule, PoDynamicModule, PoModalModule, PoButtonModule, PoFieldModule
+    PoPageDynamicSearchModule,
+    PoMenuModule, PoPageModule, PoDynamicModule, PoModalModule, PoButtonModule, PoFieldModule, PoTableModule
   ],
   exports: [
-    PoMenuModule, PoPageModule, PoDynamicModule, PoModalModule, PoButtonModule, PoFieldModule
+    PoPageDynamicSearchModule,
+    PoMenuModule, PoPageModule, PoDynamicModule, PoModalModule, PoButtonModule, PoFieldModule, PoTableModule
   ]
 })
 export class SharedModule { }

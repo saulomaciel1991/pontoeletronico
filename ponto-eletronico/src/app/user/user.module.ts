@@ -6,11 +6,13 @@ import { FormComponent } from './form/form.component'
 
 import { UserRoutingModule } from './user-routing.module';
 import { SharedModule } from '../shared/shared.module';
+import { ListComponent } from './list/list.component';
 
 
 @NgModule({
   declarations: [
-    FormComponent
+    FormComponent,
+    ListComponent
   ],
   imports: [
     CommonModule,

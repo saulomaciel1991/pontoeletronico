@@ -35,7 +35,7 @@ export class LoginComponent implements OnInit {
 
       setTimeout(() => {
         this.auth.isLoggedIn = true
-        this.router.navigate(['/home'])
+        this.router.navigate(['/'])
       }, 2000);
     } else {
       this.loading = false;
