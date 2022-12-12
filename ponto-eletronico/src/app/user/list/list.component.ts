@@ -17,12 +17,14 @@ export class ListComponent implements OnInit {
   };
 
   public readonly filters: Array<PoPageDynamicSearchFilters> = [
-    { property: 'data', label: 'Data', type: 'date', gridColumns: 6 },
+    { property: 'data', label: 'Data de', type: 'date', gridColumns: 6 },
+    { property: 'dataATE', label: 'Data até', type: 'date', gridColumns: 6 },
     { property: 'dia', label: 'Dia da Semana', gridColumns: 6 }
   ]
 
   columns: Array<PoTableColumn> = [
     { property: 'data', type: 'date', width: '6,25%', label: 'Data' },
+    { property: 'dataATE', type: 'date', width: '6,25%', label: 'Data', visible: false }, //Apenas usado na busca
     { property: 'dia', width: '6,25%', label: 'Dia'},
     { property: 'PE', width: '6,25%', label: '1ª Entrada', type: 'time', format: 'HH:mm'},
     { property: 'PS', width: '6,25%', label: '1ª Saída', type: 'time', format: 'HH:mm' },
@@ -47,7 +49,6 @@ export class ListComponent implements OnInit {
     filter ? this.searchItems(filter) : this.resetFilters()
   }
   onChangeDisclaimers(disclaimers: any) {
-    console.log(disclaimers)
     const filter: any = {};
     disclaimers.forEach((item:any) => {
       filter[item.property] = item.value;
