@@ -26,6 +26,7 @@ export class LoginComponent implements OnInit {
 
   checkLogin(formData: any) {
     this.loading = true;
+    console.log(this.passwordErrors, this.loginErrors)
 
     if (formData.login === 'devpo' && formData.password === '1986') {
 
@@ -35,7 +36,7 @@ export class LoginComponent implements OnInit {
 
       setTimeout(() => {
         this.auth.isLoggedIn = true
-        this.router.navigate(['/'])
+        this.router.navigate(['/user/info'])
       }, 2000);
     } else {
       this.loading = false;

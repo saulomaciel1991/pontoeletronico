@@ -11,6 +11,7 @@ export class HomeComponent implements OnInit {
   constructor() { }
 
   public readonly menus: Array<PoMenuItem> = [
+    { label: 'Info', link: '/user/info', icon: "po-icon-user", shortLabel: 'Info' },
     { label: 'Pontos', link: '/user/list', icon: "po-icon-calendar-ok", shortLabel: 'Pontos' },
     { label: 'Editar usuário', icon: "po-icon-edit", shortLabel: 'Editar' }
   ];

@@ -1,1 +1,11 @@
-<po-page-dynamic-search p-title="Po Page Dynamic search" [p-filters]="[{ property: 'name' }]"> </po-page-dynamic-search>
+<po-page-dynamic-search
+    p-title="Espelho do Ponto"
+    [p-filters]="[{property: 'dia'}]"
+    (p-advanced-search)="onAdvancedSearch($event)">
+
+    <po-table
+        p-container="shadow"
+        [p-columns]="columns"
+        [p-items]="items">
+    </po-table>
+</po-page-dynamic-search>

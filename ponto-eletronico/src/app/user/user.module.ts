@@ -9,17 +9,24 @@ import { SharedModule } from '../shared/shared.module';
 import { ListComponent } from './list/list.component';
 
 
+//Componentes do usuário
+import { PoDynamicModule } from '@po-ui/ng-components';
+import { InfoComponent } from './info/info.component';
+
+
 @NgModule({
   declarations: [
     FormComponent,
-    ListComponent
+    ListComponent,
+    InfoComponent
   ],
   imports: [
     CommonModule,
     UserRoutingModule,
     FormsModule,
     ReactiveFormsModule,
-    SharedModule
+    SharedModule,
+    PoDynamicModule
   ]
 })
 export class UserModule { }
