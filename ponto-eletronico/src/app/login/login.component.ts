@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { PoModalComponent } from '@po-ui/ng-components';
 import { PoPageLoginLiterals } from '@po-ui/ng-templates';
 import { AuthService } from '../auth/auth.service';
+import { UserService } from '../user/user.service';
 
 @Component({
   selector: 'app-login',
@@ -28,14 +29,16 @@ export class LoginComponent implements OnInit {
     this.poModal.open()
   }
 
-
-
-  constructor(private router: Router, private auth: AuthService) { }
+  constructor(
+    private router: Router,
+    private auth: AuthService,
+    private userService: UserService
+    ) { }
 
   checkLogin(formData: any) {
     this.loading = true;
 
-    if (formData.login === 'devpo' && formData.password === '1986') {
+    if (this.userService.login(formData)) {
 
       this.passwordErrors = [];
       //this.exceededAttempts = 0;
@@ -52,7 +55,6 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  
   passwordChange() {
     if (this.passwordErrors.length) {
       this.passwordErrors = [];

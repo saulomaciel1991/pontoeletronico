@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PoTableColumn } from '@po-ui/ng-components';
+import { PoPageDynamicSearchFilters, PoPageDynamicSearchLiterals } from '@po-ui/ng-templates';
+import { PontosService } from '../pontos.service';
 
 @Component({
   selector: 'app-list',
@@ -8,52 +10,16 @@ import { PoTableColumn } from '@po-ui/ng-components';
 })
 export class ListComponent implements OnInit {
 
-  items: Array<any> = [
-    {
-      data: '2022-10-03',
-      dia: 'Segunda',
-      PE: '08:12:00',
-      PS: '12:10:00',
-      SE: '13:29:00',
-      SS: '18:24:00',
-      absent: '00:07:00',
-      jornada: '08:53:00'
-    },
-    {
-      data: '2022-10-04',
-      dia: 'Terça',
-      PE: '08:00:00',
-      PS: '12:10:00',
-      SE: '13:29:00',
-      SS: '18:24:00',
-      HE: '00:30:54',
-      absent: '00:07:00',
-      jornada: '09:00:00'
-    }
-  ];
-  itemsAux: Array<any> = [
-    {
-      data: '2022-10-03',
-      dia: 'Segunda',
-      PE: '08:12:00',
-      PS: '12:10:00',
-      SE: '13:29:00',
-      SS: '18:24:00',
-      absent: '00:07:00',
-      jornada: '08:53:00'
-    },
-    {
-      data: '2022-10-04',
-      dia: 'Terça',
-      PE: '08:00:00',
-      PS: '12:10:00',
-      SE: '13:29:00',
-      SS: '18:24:00',
-      HE: '00:30:54',
-      absent: '00:07:00',
-      jornada: '09:00:00'
-    }
-  ];
+  items: Array<any> = []
+
+  customLiterals: PoPageDynamicSearchLiterals = {
+    searchPlaceholder: 'Pesquisar por dia'
+  };
+
+  public readonly filters: Array<PoPageDynamicSearchFilters> = [
+    { property: 'data', label: 'Data', type: 'date', gridColumns: 6 },
+    { property: 'dia', label: 'Dia da Semana', gridColumns: 6 }
+  ]
 
   columns: Array<PoTableColumn> = [
     { property: 'data', type: 'date', width: '6,25%', label: 'Data' },
@@ -66,18 +32,40 @@ export class ListComponent implements OnInit {
     { property: 'HE', width: '6,25%', label: 'Hora Extra', type: 'time', format: 'HH:mm' },
     { property: 'absent', width: '6,25%', label: 'Absent.', type: 'time', format: 'HH:mm' },
     { property: 'jornada', width: '6,25%', label: 'Jornada', type: 'time', format: 'HH:mm' },
-    { property: 'obs', width: '6,25%', label: 'Observação'}
+    { property: 'obs', width: '6,25%', label: 'Observação'},
+    { property: 'matricula', visible: false, type: 'string'}
 
   ];
 
-  constructor() { }
+  constructor(private pontosService: PontosService) { }
 
   ngOnInit(): void {
+    this.items = this.pontosService.list()
   }
 
   onAdvancedSearch(filter:any) {
+    filter ? this.searchItems(filter) : this.resetFilters()
+  }
+  onChangeDisclaimers(disclaimers: any) {
+    console.log(disclaimers)
+    const filter: any = {};
+    disclaimers.forEach((item:any) => {
+      filter[item.property] = item.value;
+    });
+    this.searchItems(filter);
+  }
+
+  onQuickSearch(filter: any) {
     console.log(filter)
-    filter ? this.items = this.items.filter(item => item.dia == filter.dia) : this.items = this.itemsAux
+    filter ? this.searchItems({ dia: filter }) : this.resetFilters();
+  }
+
+  private resetFilters() {
+    this.items = this.pontosService.resetFilters();
+  }
+
+  private searchItems(filter: any) {
+    this.items = this.pontosService.filter(filter);
   }
 
 }

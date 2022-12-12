@@ -1,11 +1,17 @@
 <po-page-dynamic-search
     p-title="Espelho do Ponto"
-    [p-filters]="[{property: 'dia'}]"
+    [p-filters]="filters"
+    [p-keep-filters]="true"
+    [p-literals]="customLiterals"
+    (p-quick-search)="onQuickSearch($event)"
+    (p-change-disclaimers)="onChangeDisclaimers($event)"
     (p-advanced-search)="onAdvancedSearch($event)">
 
     <po-table
         p-container="shadow"
+        [p-sort]="true"
         [p-columns]="columns"
-        [p-items]="items">
+        [p-items]="items"
+        [p-striped]="true">
     </po-table>
 </po-page-dynamic-search>

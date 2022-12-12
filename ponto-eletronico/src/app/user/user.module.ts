@@ -12,6 +12,7 @@ import { ListComponent } from './list/list.component';
 //Componentes do usuário
 import { PoDynamicModule } from '@po-ui/ng-components';
 import { InfoComponent } from './info/info.component';
+import { UserService } from './user.service';
 
 
 @NgModule({
@@ -27,6 +28,7 @@ import { InfoComponent } from './info/info.component';
     ReactiveFormsModule,
     SharedModule,
     PoDynamicModule
-  ]
+  ],
+  providers: [UserService],
 })
 export class UserModule { }

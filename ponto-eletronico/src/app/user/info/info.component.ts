@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { PoDynamicViewField } from '@po-ui/ng-components';
+import { UserService } from '../user.service';
 
 @Component({
   selector: 'app-info',
@@ -7,6 +8,8 @@ import { PoDynamicViewField } from '@po-ui/ng-components';
   styleUrls: ['./info.component.css']
 })
 export class InfoComponent implements OnInit {
+
+  dados: any = {}
 
   fields: Array<PoDynamicViewField> = [
     { property: 'empresa', divider: 'Empresa', gridColumns: 8, order: 1 },
@@ -23,30 +26,11 @@ export class InfoComponent implements OnInit {
     { property: 'situacao', label: 'Situação', gridColumns: 3 },
     { property: 'departamento', label: 'Departamento', gridColumns: 4 },
 
-
-
   ];
-
-  dados = {
-    empresa: 'BCI COMERCIALIZADORA LTDA',
-    cnpj: '12.103.781/0001-29',
-    endereco: 'Estrada TDR Norte,3005 ',
-    emissao: '05/12/2022',
-    matricula: '1201 - 000028',
-    nome: 'AMANDA FERREIRA ALVES DOS SANT',
-    admissao: '03/01/2011',
-    funcao: 'A065 - ANALIST SISTEMA SR',
-    cc: 'D04001 - SISTEMAS',
-    cpf: '009.763.794-73',
-    categoria: 'M',
-    situacao: 'NORMAL',
-    departamento: '020 - TECNOLOGIA DA INFORMACAO '
-
-  };
-
-  constructor() { }
+  constructor(private userService: UserService) { }
 
   ngOnInit(): void {
+    this.dados = this.userService.getUser()
   }
 
 }
