@@ -37,6 +37,7 @@ export class LoginComponent implements OnInit {
 
   checkLogin(formData: any) {
     this.loading = true;
+    console.log(formData)
 
     if (this.userService.login(formData)) {
 
