@@ -93,20 +93,20 @@ export class PontosService {
   filter(filters: any) {
     let filteredItems = [...this.list()];
 
-    /*  Guarda a data final (se existir) para ser usada mais tarde
-        e deleta da lista de filtros pois os pontos não possuem um data final */
+    let start = filters.data
     let end = filters.dataATE
-    delete filters.dataATE
 
     Object.keys(filters).forEach(filter => {
       filteredItems = filteredItems.filter(pontos => {
-        if (typeof pontos[filter] === 'string') {
-          if (filter == 'data' && end != undefined){
-            return (pontos[filter] >= filters[filter] && pontos[filter] <= end)
-          }
+        if (filter == 'dia' || end === undefined) {
           return pontos[filter].toLocaleLowerCase().includes(filters[filter].toLocaleLowerCase());
         } else {
-          return pontos[filter] === filters[filter];
+            if (filter == 'data'){
+              return (pontos[filter] >= start && pontos[filter] <= end)
+            }else{
+              return (pontos['data'] <= end)
+            }
+          //return pontos[filter] === filters[filter];
         }
       });
     });
