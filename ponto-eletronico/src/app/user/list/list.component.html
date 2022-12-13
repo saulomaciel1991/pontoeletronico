@@ -1,4 +1,5 @@
 <po-page-dynamic-search
+    [p-actions]="actions"
     p-title="Espelho do Ponto"
     [p-filters]="filters"
     [p-keep-filters]="true"
@@ -7,11 +8,14 @@
     (p-change-disclaimers)="onChangeDisclaimers($event)"
     (p-advanced-search)="onAdvancedSearch($event)">
 
-    <po-table
-        p-container="shadow"
-        [p-sort]="true"
-        [p-columns]="columns"
-        [p-items]="items"
-        [p-striped]="true">
-    </po-table>
+    <div class="table" id="htmlData">
+
+        <po-table
+            p-container="shadow"
+            [p-sort]="true"
+            [p-columns]="columns"
+            [p-items]="items"
+            [p-striped]="true">
+        </po-table>
+    </div>
 </po-page-dynamic-search>
