@@ -13,13 +13,19 @@ import { ListComponent } from './list/list.component';
 import { PoDynamicModule } from '@po-ui/ng-components';
 import { InfoComponent } from './info/info.component';
 import { UserService } from './user.service';
+import { PontosDescartadosComponent } from './pontos-descartados/pontos-descartados.component';
+import { HorariosComponent } from './horarios/horarios.component';
+import { ResumoComponent } from './resumo/resumo.component';
 
 
 @NgModule({
   declarations: [
     FormComponent,
     ListComponent,
-    InfoComponent
+    InfoComponent,
+    PontosDescartadosComponent,
+    HorariosComponent,
+    ResumoComponent
   ],
   imports: [
     CommonModule,
