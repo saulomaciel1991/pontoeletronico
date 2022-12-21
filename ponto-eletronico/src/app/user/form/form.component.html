@@ -1,33 +1,40 @@
-<div class="center">
+
+
+<po-page-default>
 
     <form #passwordForm="ngForm">
 
-        <po-password
-            class="po-sm-12"
-            name="newPassword"
-            [(ngModel)]="newPassword"
-            p-clean
-            p-label="Nova Senha"
-            [p-minlength]="6"
-            p-error-pattern="Senha precisa ter 6 caracteres no mínimo"
-            p-required>
-        </po-password>
-
-        <po-password
-            class="po-sm-12"
-            name="confirmNewPassword"
-            [(ngModel)]="confirmNewPassword"
-            p-clean
-            p-label="Confirmar Nova Senha"
-            [p-minlength]="6"
-            p-error-pattern="Senha precisa ter 6 caracteres no mínimo"
-            p-required>
-        </po-password>
+        <div class="po-row">
+            <po-password
+                class="po-sm-12 po-md-6"
+                name="newPassword"
+                [(ngModel)]="newPassword"
+                p-clean
+                p-label="Nova Senha"
+                [p-minlength]="6"
+                p-error-pattern="Senha precisa ter 6 caracteres no mínimo"
+                p-required>
+            </po-password>
+        </div>
 
         <div class="po-row">
-            <po-button class="po-md-4" p-label="Save" [p-disabled]="passwordForm.invalid!"
+            <po-password
+                class="po-sm-12 po-md-6"
+                name="confirmNewPassword"
+                [(ngModel)]="confirmNewPassword"
+                p-clean
+                p-label="Confirmar Nova Senha"
+                [p-minlength]="6"
+                p-error-pattern="Senha precisa ter 6 caracteres no mínimo"
+                p-required>
+            </po-password>
+        </div>
+        <div class="po-row">
+            <po-button class="po-md-4" p-label="Save"
+                [p-disabled]="passwordForm.invalid!"
                 (p-click)="setPassword()">
             </po-button>
         </div>
     </form>
-</div>
+
+</po-page-default>
