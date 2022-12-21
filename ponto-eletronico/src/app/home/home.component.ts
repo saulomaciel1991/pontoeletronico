@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { PoMenuItem } from '@po-ui/ng-components';
+import { Component, HostListener, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { PoMenuItem, PoToolbarAction } from '@po-ui/ng-components';
+import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -8,15 +10,37 @@ import { PoMenuItem } from '@po-ui/ng-components';
 })
 export class HomeComponent implements OnInit {
 
-  constructor() { }
+  constructor(
+    private router: Router,
+    private auth: AuthService,
+  ) { }
+
+  actions: Array<PoToolbarAction> = [
+    { label: 'Sair', icon: 'po-icon-exit', action: this.logout.bind(this) },
+  ];
 
   public readonly menus: Array<PoMenuItem> = [
     { label: 'Dados do Funcionário', link: '/user/info', icon: "po-icon-user", shortLabel: 'Info' },
     { label: 'Pontos', link: '/user/list', icon: "po-icon-calendar-ok", shortLabel: 'Pontos' },
-    { label: 'Alterar Senha', link: '/user/edit' , icon: "po-icon-edit", shortLabel: 'Senha' }
+    { label: 'Alterar Senha', link: '/user/edit', icon: "po-icon-edit", shortLabel: 'Senha' }
   ];
 
   ngOnInit(): void {
   }
+
+  public logout() {
+
+    setTimeout(() => {
+      this.auth.isLoggedIn = false
+      this.router.navigate(['/login'])
+    }, 1500);
+
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+    handleKeyDown(event: BeforeUnloadEvent) {
+      event.returnValue = false
+    }
+
 
 }
