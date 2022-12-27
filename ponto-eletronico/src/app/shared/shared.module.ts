@@ -9,7 +9,8 @@ import {
   PoModalModule,
   PoButtonModule,
   PoFieldModule,
-  PoTableModule
+  PoTableModule,
+  PoLoadingModule
 } from '@po-ui/ng-components';
 
 @NgModule({
@@ -17,11 +18,13 @@ import {
   imports: [
     CommonModule,
     PoPageDynamicSearchModule,
-    PoMenuModule, PoPageModule, PoDynamicModule, PoModalModule, PoButtonModule, PoFieldModule, PoTableModule
+    PoMenuModule, PoPageModule, PoDynamicModule, PoModalModule, PoButtonModule, PoFieldModule,
+    PoTableModule, PoLoadingModule
   ],
   exports: [
     PoPageDynamicSearchModule,
-    PoMenuModule, PoPageModule, PoDynamicModule, PoModalModule, PoButtonModule, PoFieldModule, PoTableModule
+    PoMenuModule, PoPageModule, PoDynamicModule, PoModalModule, PoButtonModule, PoFieldModule,
+    PoTableModule, PoLoadingModule
   ]
 })
 export class SharedModule { }

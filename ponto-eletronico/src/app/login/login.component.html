@@ -5,6 +5,8 @@
     [p-recovery]="myRecovery.bind(this)"
     [p-literals]="customLiterals"
     [p-loading]="loading"
+    p-password-pattern="^[0-9]{6,6}$"
+    p-login-pattern="^[0-9]{1,11}$"
     [p-password-errors]="passwordErrors"
     [p-login-errors]="loginErrors"
     (p-login-change)="loginChange()"
@@ -15,7 +17,7 @@
 <po-modal p-title="Esqueceu a senha?" [p-hide-close]="true">
     <div class="center">
         <p>
-            Contate o RH da empresa para resetar a senha.
+            Entre em contato com o suporte de sua empresa para recuperar a sua senha.
         </p>
     </div>
 </po-modal>

@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { PoModalComponent } from '@po-ui/ng-components';
+import { PoModalComponent, PoNotificationService, PoToasterOrientation } from '@po-ui/ng-components';
 import { PoPageLoginLiterals } from '@po-ui/ng-templates';
 import { AuthService } from '../auth/auth.service';
 import { UserService } from '../user/user.service';
@@ -18,42 +18,55 @@ export class LoginComponent implements OnInit {
   customLiterals: PoPageLoginLiterals = {
     registerUrl: "Cadastrar Usuário",
     loginHint: 'Caso não possua usuário entre em contato com o suporte',
+    loginPlaceholder: 'Insira seu CPF (só os números) ',
+    passwordErrorPattern: 'Senha deve possuir exatamente seis caracteres numéricos.',
+    loginErrorPattern: 'Login deve possuir apenas os onze digitos do seu cpf.'
   };
 
   loading: boolean = false;
   loginErrors: string[] = [];
-  passwordErrors: string[]= [];
+  passwordErrors: string[] = [];
 
 
-  myRecovery(){
+  myRecovery() {
     this.poModal.open()
   }
 
   constructor(
     private router: Router,
     private auth: AuthService,
-    private userService: UserService
-    ) { }
+    private userService: UserService,
+    private poNotification: PoNotificationService,
+  ) { }
 
   checkLogin(formData: any) {
     this.loading = true;
-    console.log(formData)
+    this.userService.login(formData)
+      .subscribe({
+        next: (v: any) => {
+          if (v.hasContent === true) {
+            this.passwordErrors = [];
+            this.loginErrors = [];
+            this.userService.userCPF = v.cpf // atualiza cpf e filial de atuação
+            this.userService.filatu = v.filialAtuacao
+            this.auth.isLoggedIn = true //autentica
+            setTimeout(() => {
+              this.router.navigate(['/user/info'])
+            }, 2000);
+          } else {
+            this.loading = false;
+            formData.login = ''
+            formData.password = ''
+            this.poNotification.error(v.message)
+          }
+        },
+        error: (e: any) => {
+          this.loading = false
+        },
+        complete: () => {
+        }
+      })
 
-    if (this.userService.login(formData)) {
-
-      this.passwordErrors = [];
-      //this.exceededAttempts = 0;
-      this.loginErrors = [];
-
-      setTimeout(() => {
-        this.auth.isLoggedIn = true
-        this.router.navigate(['/user/info'])
-      }, 2000);
-    } else {
-      this.loading = false;
-      this.passwordErrors = ['Senha e/ou usuário inválido, verifique e tente novamente.'];
-      this.loginErrors = ['Senha e/ou usuário inválido, verifique e tente novamente.'];
-    }
   }
 
   passwordChange() {
@@ -67,7 +80,6 @@ export class LoginComponent implements OnInit {
       this.loginErrors = [];
     }
   }
-
 
   ngOnInit(): void {
   }

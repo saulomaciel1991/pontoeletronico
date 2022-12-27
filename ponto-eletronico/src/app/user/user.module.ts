@@ -35,6 +35,6 @@ import { ResumoComponent } from './resumo/resumo.component';
     SharedModule,
     PoDynamicModule
   ],
-  providers: [UserService],
+  providers: [],
 })
 export class UserModule { }

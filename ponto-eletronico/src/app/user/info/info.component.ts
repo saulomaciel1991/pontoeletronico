@@ -1,5 +1,7 @@
+import { formatDate } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { PoDynamicViewField } from '@po-ui/ng-components';
+import { PoDynamicViewField, PoNotificationService } from '@po-ui/ng-components';
+import { AuthService } from 'src/app/auth/auth.service';
 import { UserService } from '../user.service';
 
 @Component({
@@ -10,15 +12,18 @@ import { UserService } from '../user.service';
 export class InfoComponent implements OnInit {
 
   dados: any = {}
+  funcionario = {}
+  empresa: any = {}
+  hidden = false
 
   fields: Array<PoDynamicViewField> = [
     { property: 'empresa', divider: 'Empresa', gridColumns: 8, gridSmColumns: 6, order: 1 },
     { property: 'cnpj', label: 'CNPJ', gridColumns: 4, gridSmColumns: 6 },
     { property: 'endereco', gridColumns: 8, gridSmColumns: 6 },
-    { property: 'emissao', label: 'Emissão', gridColumns: 4, gridSmColumns: 6 },
+    { property: 'emissao', label: 'Emissão', gridColumns: 4, gridSmColumns: 6, format: 'dd/MM/yyyy' },
     { property: 'matricula', label: 'Matrícula', gridColumns: 3, gridSmColumns: 4, divider: 'Funcionário' },
     { property: 'nome', label: 'Nome', gridColumns: 6, gridSmColumns: 4 },
-    { property: 'admissao', label: 'Admissão', gridColumns: 3, gridSmColumns: 4 },
+    { property: 'admissao', label: 'Admissão', gridColumns: 3, gridSmColumns: 4, format: 'dd/MM/yyyy' },
     { property: 'funcao', label: 'Função', gridColumns: 3, gridSmColumns: 4 },
     { property: 'cc', label: 'C.C.', gridColumns: 3, gridSmColumns: 4 },
     { property: 'cpf', label: 'CPF', gridColumns: 3, gridSmColumns: 4 },
@@ -27,10 +32,59 @@ export class InfoComponent implements OnInit {
     { property: 'departamento', label: 'Departamento', gridColumns: 4, gridSmColumns: 4 },
 
   ];
-  constructor(private userService: UserService) { }
+  constructor(private userService: UserService, private poNotification: PoNotificationService, private auth: AuthService,) { }
 
   ngOnInit(): void {
-    this.dados = this.userService.getUser()
+    this.getEmpresa()
+    this.funcionario = this.userService.getUser()
+      .subscribe({
+        next: (v: any) => {
+          if (v.user !== undefined) {
+            setTimeout(() => {
+              v.user[0].admissao = new Date(v.user[0].admissao).toLocaleDateString()
+              v.user[0].cpf = this.formataCPF(v.user[0].cpf)
+              this.funcionario = v.user[0]
+              this.dados = {...this.funcionario, ...this.empresa}
+              this.hidden = true
+            }, 500);
+          }else {
+            this.poNotification.error(v.message)
+          }
+        },
+        error: (e: any) => this.poNotification.error("Error"),
+      })
+  }
+
+  private formataCPF(cpf: string): string {
+    return (cpf.substring(0, 3) + '.' + cpf.substring(3, 6) + '.' + cpf.substring(6, 9) + '-' + cpf.substring(9))
+  }
+
+  public getEmpresa(){
+    this.empresa = this.userService.getFilial()
+      .subscribe({
+        next: (v: any) => {
+          if (v.hasContent == true) {
+            setTimeout(() => {
+              this.empresa = {
+                empresa: v.empresa,
+                cnpj: v.cnpj,
+                endereco: v.endereco,
+                emissao: new Date().toLocaleDateString()
+              }
+            }, 500);
+          }else {
+            this.empresa = {
+              empresa: '',
+              cnpj: '',
+              endereco: '',
+              emissao: new Date().toLocaleDateString()
+            }
+            console.log(v.message)
+          }
+        },
+        error: (e: any) => console.log(e.message)
+      })
+
   }
 
 }
