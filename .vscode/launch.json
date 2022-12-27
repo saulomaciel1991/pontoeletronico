@@ -7,7 +7,7 @@
 			"name": "TOTVS Language Debug",
 			"program": "${command:AskForProgramName}",
 			"cwb": "${workspaceFolder}",
-			"smartclientBin": "C:\\TOTVS12\\Harpia\\Protheus\\bin\\smartclient BCI\\smartclient.exe",
+			"smartclientBin": "C:\\TOTVS12\\Harpia\\Protheus\\bin\\smartclient\\smartclient.exe",
 			"isMultiSession": true,
 			"enableTableSync": true,
 			"enableMultiThread": true,
@@ -27,6 +27,9 @@
 		},
 		{
 			"label": "SIGAMDI"
+		},
+		{
+			"label": "u_FWGrpCompany"
 		}
 	],
 	"lastProgramExecuted": "SIGAMDI"

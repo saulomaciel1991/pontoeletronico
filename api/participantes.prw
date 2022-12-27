@@ -5,14 +5,13 @@ WSRESTFUL participantes DESCRIPTION 'Manipulacao de Clientes'
 	Self:SetHeader('Access-Control-Allow-Credentials' , "true")
 
 	//Criação dos Metodos
-	WSMETHOD GET DESCRIPTION 'Listar todos os Participantes' WSSYNTAX '/participantes' PATH '/'
-	// WSMETHOD GET numero DESCRIPTION 'Buscar participante selecionado' WSSYNTAX '/participantes/{numero}' PATH '/participantes/{numero}'
+	WSMETHOD GET DESCRIPTION 'Buscar participante por cpf e senha' WSSYNTAX '/participantes' PATH '/'
+	WSMETHOD PUT DESCRIPTION 'Alterar senha do participante selecionado' WSSYNTAX '/pedidos' PATH '/'
 
 END WSRESTFUL
 
 WSMETHOD GET WSSERVICE participantes
-
-	//http://localhost:8090/rest/participantes/?cpf=00976379473&senha=123456
+	//http://192.168.41.60:8090/rest/participantes/?cpf=00976379473&senha=123456
 	Local aAreaRD0 := RD0->(GetArea())
 	Local cResponse := JsonObject():New()
 	Local lRet := .T.
@@ -27,7 +26,7 @@ WSMETHOD GET WSSERVICE participantes
 	If nPosId > 0 .AND. nPosSen > 0
 		cCpf := aParams[nPosId,2]
 		cSenha := aParams[nPosSen,2]
-		cSenha := arrumaSenha(cSenha)
+		cSenha := cripSenha(cSenha)
 	EndIf
 
 	BEGINSQL ALIAS 'TRD0'
@@ -37,30 +36,39 @@ WSMETHOD GET WSSERVICE participantes
 		WHERE
 			RD0.%NotDel%
 			AND RD0_CIC = %exp:cCpf%
-			AND RD0_SENHA = %exp:cSenha%
+			//AND RD0_SENHA = %exp:cSenha%
 			AND RD0_MSBLQL = '2'
+			AND RD0_FUNC = '1'
 	ENDSQL
-	
+
 	If !TRD0->(Eof())
 		nRD0Reg := TRD0->R_E_C_N_O_
 	EndIf
 	TRD0->(DbCloseArea())
 
-	RD0->(DbSetOrder(1))
 	RD0->(DbGoTo(nRD0Reg))
-
 	If !RD0->(Eof())
 		Aadd(aDados, JsonObject():new())
 		nPos := Len(aDados)
-		cResponse['filial' ] := AllTrim(RD0->RD0_FILIAL)
-		cResponse['codigo' ] := AllTrim(RD0->RD0_CODIGO)
-		cResponse['nome' ] := AllTrim(RD0->RD0_NOME)
-		cResponse['cpf' ] := AllTrim(RD0->RD0_CIC)
-		cResponse['hasContent'] := .T.
+		IF (AllTrim(RD0->RD0_SENHA) == csenha)
+			cResponse['filial' ] := AllTrim(RD0->RD0_FILIAL)
+			cResponse['codigo' ] := AllTrim(RD0->RD0_CODIGO)
+			cResponse['nome' ] := AllTrim(RD0->RD0_NOME)
+			cResponse['cpf' ] := AllTrim(RD0->RD0_CIC)
+			cResponse['filialAtuacao'] := AllTrim(RD0->RD0_FILATU)
+			cResponse['hasContent'] := .T.
+		ELSE
+			cResponse['code'] := 403
+			cResponse['message'] := 'Senha incorreta'
+			lRet := .F.
+		ENDIF
+
 	EndIf
 
 	If nRD0Reg == 0
-		SetRestFault(204, "Nenhum registro encontrado!")
+		//SetRestFault(204, "Nenhum registro encontrado!")
+		cResponse['code'] := 403
+		cResponse['message'] := 'Login incorreto ou usuário não encontrado'
 		lRet := .F.
 	EndIf
 
@@ -69,7 +77,74 @@ WSMETHOD GET WSSERVICE participantes
 	RD0->(RestArea(aAreaRD0))
 Return lRet
 
-Static Function arrumaSenha(senha)
+WSMETHOD PUT WSSERVICE participantes
+	Local oBody := Self:getContent()
+	Local lRet := .T.
+	Local oResponse := JsonObject():New()
+	Local oParticipante := JsonObject():New()
+	Local lErro := .F.
+	Local aErro := {}
+	Local nRD0Reg := 0
+	Local cCpf, cSenhaAntiga, cSenhaNova := ""
+
+	// Parse do conteudo da requisicao.
+	cError := oParticipante:fromJson(oBody)
+
+	// Valida erros no parse.
+	if !Empty(cError)
+		SetRestFault(400, cError)
+		lRet := .F.
+		return lRet
+	endif
+
+	cCpf := oParticipante["cpf"]
+	cSenhaAntiga := cripSenha(oParticipante["senhaAtual"])
+	cSenhaNova := cripSenha(oParticipante["novaSenha"])
+
+	BEGINSQL ALIAS 'TRD0'
+		SELECT
+			RD0.R_E_C_N_O_
+		FROM %Table:RD0% AS RD0
+		WHERE
+			RD0.%NotDel%
+			AND RD0_CIC = %exp:cCpf%
+			AND RD0_SENHA = %exp:cSenhaAntiga%
+			AND RD0_MSBLQL = '2'
+	ENDSQL
+
+	If !TRD0->(Eof())
+		nRD0Reg := TRD0->R_E_C_N_O_
+	EndIf
+	TRD0->(DbCloseArea())
+
+	RD0->(DbGoTo(nRD0Reg))
+	If !RD0->(Eof())
+		RecLock("RD0", .F.)
+		Replace RD0_SENHA With cSenhaNova
+		MsUnlock()
+		Aadd(aErro, .F.)
+	Else
+		Aadd(aErro, .T.)
+		Aadd(aErro, "Senha atual incorreta")
+	EndIf
+
+	// aErro := U_A_MATA410(oParticipante)
+	lErro := aErro[1]
+
+	If lErro
+		oResponse ['message'] := aErro[2]
+	Else
+		oResponse ['message'] := "Senha alterada com sucesso!"
+	EndIf
+
+	// Define o tipo de retorno do método.
+	Self:SetContentType( 'application/json' )
+
+	// Define a resposta.
+	Self:SetResponse(EncodeUTF8(oResponse:toJson()))
+Return lRet
+
+Static Function cripSenha(senha)
 	Local cSenhaCorr := ''
 	Local aTam := Len(senha)
 	Local nPosLetra := 0

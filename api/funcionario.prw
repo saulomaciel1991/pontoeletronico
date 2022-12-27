@@ -7,13 +7,13 @@ WSRESTFUL funcionarios DESCRIPTION 'Manipulação de funcionarios'
 	//cpf para teste 333.980.338-22
 
 	//Criação dos Metodos
-	WSMETHOD GET DESCRIPTION 'Listar todos os funcionarios' WSSYNTAX '/funcionarios/' PATH '/'
-	WSMETHOD GET cpf DESCRIPTION 'Buscar funcionario pela matricula' WSSYNTAX '/funcionarios/{cpf}' ;
-		PATH '/funcionarios/{cpf}'
+	//WSMETHOD GET DESCRIPTION 'Listar todos os funcionarios' WSSYNTAX '/funcionarios/' PATH '/'
+	WSMETHOD GET DESCRIPTION 'Buscar funcionario pela matricula' WSSYNTAX '/funcionarios/' ;
+		PATH '/funcionarios/'
 
 END WSRESTFUL
 
-WSMETHOD GET WSSERVICE funcionarios
+/* WSMETHOD GET WSSERVICE funcionarios
 	Local aAreaSRA := SRA->(GetArea())
 	Local cResponse := JsonObject():New()
 	Local lRet := .T.
@@ -26,9 +26,8 @@ WSMETHOD GET WSSERVICE funcionarios
 		Aadd(aDados, JsonObject():new())
 		nPos := Len(aDados)
 		aDados[nPos]['matricula' ] := AllTrim(SRA->RA_MAT)
-		aDados[nPos]['nome' ] := AllTrim(SRA->RA_NSOCIAL)
-		aDados[nPos]['admissao' ] := AllTrim(SRA->RA_ADMISSA)
-		//aDados[nPos]['funcao' ] := AllTrim(SRA->RA_DESCFUN)
+		aDados[nPos]['nome' ] := AllTrim(SRA->RA_NOME)
+		aDados[nPos]['admissao' ] := (SRA->RA_ADMISSA)
 		aDados[nPos]['cc' ] := AllTrim(SRA->RA_CC)
 		aDados[nPos]['cpf' ] := AllTrim(SRA->RA_CIC )
 		aDados[nPos]['categoria' ] := AllTrim(SRA->RA_CATFUNC )
@@ -45,20 +44,28 @@ WSMETHOD GET WSSERVICE funcionarios
 	Self:SetResponse(EncodeUTF8(cResponse:toJson()))
 	SA1->(RestArea(aAreaSRA))
 Return lRet
-
-WSMETHOD GET cpf WSSERVICE funcionarios
+ */
+WSMETHOD GET WSSERVICE funcionarios
 	Local cResponse := JsonObject():New()
 	Local lRet := .T.
 	Local aDados := {}
-	Local aUrlParams := Self:aUrlParms
-	Local cId := aUrlParams[1]
-	aDados := getArrFun(cvaltochar(cId))
+	//Local aUrlParams := Self:aUrlParms
+	Local aParams := Self:AQueryString
+	Local nPosId := aScan(aParams,{|x| x[1] == "CPF"})
+	//Local cId := aUrlParams[1]
 
-	If Len(aDados) == 0
-		SetRestFault(204, "Nenhum registro encontrado!")
+	If nPosId > 0
+		cCpf := aParams[nPosId,2]
+	EndIf
+	aDados := getArrFun(cvaltochar(cCpf))
+
+	If Len(aDados) == 0		//SetRestFault(204, "Nenhum registro encontrado!")
+		cResponse['code'] := 204
+		cResponse['message'] := 'Funcionário não encontrado'
 		lRet := .F.
 	Else
-		cResponse:set(aDados)
+		//cResponse:set(aDados)
+		cResponse['user'] := aDados
 	EndIf
 
 	Self:SetContentType('application/json')
@@ -77,14 +84,17 @@ Static Function getArrFun(cId)
 			nPos := Len(aDados)
 			aDados[nPos]['matricula' ] := AllTrim(SRA->RA_MAT)
 			aDados[nPos]['nome' ] := AllTrim(SRA->RA_NOME)
-			/* aDados[nPos]['admissao' ] := AllTrim(SRA->RA_ADMISSA)
-			aDados[nPos]['funcao' ] := AllTrim(SRA->RA_DESCFUN)
+			aDados[nPos]['admissao' ] := (SRA->RA_ADMISSA)
+			//aDados[nPos]['funcao' ] := AllTrim(SRA->RA_DESCFUN)
 			aDados[nPos]['cc' ] := AllTrim(SRA->RA_CC)
 			aDados[nPos]['cpf' ] := AllTrim(SRA->RA_CIC )
 			aDados[nPos]['categoria' ] := AllTrim(SRA->RA_CATFUNC )
-			aDados[nPos]['situacao' ] := AllTrim(SRA->RA_SITFOLH )
-			aDados[nPos]['departamento' ] := AllTrim(SRA->RA_DDEPTO  )
-			// aDados[nPos]['operacao' ] := 1 */
+			IF AllTrim(SRA->RA_SITFOLH ) == ''
+				aDados[nPos]['situacao' ] := 'NORMAL'
+			ELSE
+				aDados[nPos]['situacao' ] := AllTrim(SRA->RA_SITFOLH )
+			ENDIF
+
 
 			SRA->(DbSkip())
 		EndDo
