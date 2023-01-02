@@ -67,11 +67,19 @@ export class ListComponent implements OnInit {
               this.loading = false
             }, 500);
           } else {
-            this.poDialog.alert({
-              literals: { ok: 'Fechar' },
-              title: 'Nenhum dado encontrado!',
-              message: 'Sua pesquisa não retornou nenhum resultado.'
-            });
+            if (ini == undefined && fin == undefined) {
+              this.poDialog.alert({
+                literals: { ok: 'Fechar' },
+                title: 'Nenhum dado encontrado!',
+                message: 'Nenhuma marcação de ponto encontrada.'
+              });
+            }else {
+              this.poDialog.alert({
+                literals: { ok: 'Fechar' },
+                title: 'Nenhum dado encontrado!',
+                message: 'Sua pesquisa não retornou nenhum resultado.'
+              });
+            }
           }
         },
         error: (e: any) => this.poDialog.alert({
@@ -84,13 +92,15 @@ export class ListComponent implements OnInit {
   }
 
   converteData(data: string) {
-    if (data[2] == '/' && data[4] == '/') {
+    if (data[2] == '/' && data[5] == '/') {
       var dateParts = data.split("/");
       (dateParts[2].length == 2) ? dateParts[2] = "20" + dateParts[2] : dateParts[2]
       // month is 0-based, that's why we need dataParts[1] - 1
       //new Date(year, month, day)
+
       var dateObject = new Date(+dateParts[2], (Number(dateParts[1]) - 1), +dateParts[0]).toISOString().slice(0, 10);
       return dateObject
+
     } else {
       return data
     }
@@ -107,7 +117,7 @@ export class ListComponent implements OnInit {
 
   onQuickSearch(filter: any) {
     filter = this.converteData(filter)
-    console.log(filter)
+    //console.log(filter)
     filter ? this.searchItems({ data: filter, dataATE: filter }) : this.resetFilters();
   }
 
