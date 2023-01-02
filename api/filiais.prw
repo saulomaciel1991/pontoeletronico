@@ -28,16 +28,15 @@ WSMETHOD GET WSSERVICE filiais
 		Aadd(aDados, JsonObject():new())
 		nPos := Len(aDados)
 		cResponse['filial' ] := ALLTRIM(aDadosFilial[1][2])
-		cResponse['empresa' ] := ALLTRIM(aDadosFilial[2][2])
-		cResponse['cnpj' ] := ALLTRIM(aDadosFilial[3][2])
+		cResponse['nome' ] := ALLTRIM(aDadosFilial[2][2])
+		cResponse['cgc' ] := ALLTRIM(aDadosFilial[3][2])
 		cResponse['endereco' ] := ALLTRIM(aDadosFilial[4][2])
 		cResponse['hasContent'] := .T.
 	EndIf
 
 	If nPosId == 0
-		//SetRestFault(204, "Nenhum registro encontrado!")
-		cResponse['code'] := 204
-		cResponse['message'] := 'Nenhum registro encontrado!'
+		cResponse['erro'] := 204
+		cResponse['message'] := "Filial não encontrada"
 		lRet := .F.
 	EndIf
 
