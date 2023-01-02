@@ -31,6 +31,7 @@ WSMETHOD GET WSSERVICE marcacoes
 	Local cHorasAbonadas := cMotivoAbono := ""
 	Local cHoras1T := cHoras2T := cTotalHoras := ""
 	Local cTurno := ""
+	Local cSqTurno := ""
 
 	Default cDataIni := cDataFin := "19000101"
 
@@ -79,7 +80,7 @@ WSMETHOD GET WSSERVICE marcacoes
 		Aadd(aDados, JsonObject():new())
 		nPos := Len(aDados)
 		GetAbono(AllTrim(TSP8->P8_MAT), TSP8->P8_DATA, @cHorasAbonadas, @cMotivoAbono)
-		GetTurno(@cTurno)
+		GetTurno(@cTurno, @cSqTurno)
 		aDados[nPos]['filial' ] := AllTrim(TSP8->P8_FILIAL)
 		aDados[nPos]['matricula' ] := AllTrim(TSP8->P8_MAT)
 		aDados[nPos]['data' ] := ConvertData(AllTrim(TSP8->P8_DATA))
@@ -88,6 +89,7 @@ WSMETHOD GET WSSERVICE marcacoes
 		aDados[nPos]['ordemClassificacao'] := AllTrim(TSP8->P8_CC)
 		aDados[nPos]['motivoRegistro'] := AllTrim(TSP8->P8_MOTIVRG)
 		aDados[nPos]['turno'] := AllTrim(TSP8->P8_TURNO)
+		aDados[nPos]['seqTurno'] := cSqTurno
 		aDados[nPos]['abono'] := cHorasAbonadas
 		aDados[nPos]['observacoes'] := cMotivoAbono
 
@@ -200,12 +202,12 @@ Static Function GetAbono(cMatricula, cDataAbono, cHorasAbonadas, cMotivoAbono)
 	SPK->(RestArea(aAreaSPK))
 Return
 
-Static Function GetTurno(cTurno)
+Static Function GetTurno(cTurno, cSqTurno)
 	Local nDia := DOW(STOD(TSP8->P8_DATA))
 
 	BEGINSQL ALIAS 'TSPJ'
 		SELECT
-			SPJ.PJ_HRTOTAL
+			SPJ.PJ_HRTOTAL, SPJ.PJ_SEMANA
 		FROM %Table:SPJ% AS SPJ
 		WHERE
 			SPJ.%NotDel%
@@ -216,6 +218,7 @@ Static Function GetTurno(cTurno)
 
 	If !TSPJ->(Eof())
 		cTurno := ConvertHora(TSPJ->PJ_HRTOTAL)
+		cSqTurno := TSPJ->PJ_SEMANA
 	EndIf
 	TSPJ->(DbCloseArea())
 Return
