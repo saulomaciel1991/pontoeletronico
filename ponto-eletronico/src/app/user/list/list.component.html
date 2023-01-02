@@ -4,14 +4,15 @@
     [p-filters]="filters"
     [p-keep-filters]="true"
     [p-literals]="customLiterals"
-    (p-quick-search)="onQuickSearch($event)"
+    (p-advanced-search)="onAdvancedSearch($event)"
     (p-change-disclaimers)="onChangeDisclaimers($event)"
-    (p-advanced-search)="onAdvancedSearch($event)">
+    (p-quick-search)="onQuickSearch($event)">
 
     <div class="table" id="htmlData">
 
         <div class="padding">
             <po-table
+                [p-loading] = "loading"
                 p-container="shadow"
                 [p-sort]="true"
                 [p-columns]="columns"

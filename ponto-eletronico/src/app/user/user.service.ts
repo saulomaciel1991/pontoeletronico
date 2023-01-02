@@ -19,8 +19,9 @@ const httpOptions = {
 })
 export class UserService {
 
-  userCPF = ''
-  filatu = ''
+  userCPF = '00976379473'
+  filatu = '1201'
+  matricula = '000028'
   apiURL = environment.apiURL;
 
 

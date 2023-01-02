@@ -41,6 +41,7 @@ export class InfoComponent implements OnInit {
         next: (v: any) => {
           if (v.user !== undefined) {
             setTimeout(() => {
+              this.userService.matricula = v.user[0].matricula
               v.user[0].admissao = new Date(v.user[0].admissao).toLocaleDateString()
               v.user[0].cpf = this.formataCPF(v.user[0].cpf)
               this.funcionario = v.user[0]
@@ -58,6 +59,10 @@ export class InfoComponent implements OnInit {
   private formataCPF(cpf: string): string {
     return (cpf.substring(0, 3) + '.' + cpf.substring(3, 6) + '.' + cpf.substring(6, 9) + '-' + cpf.substring(9))
   }
+  private formataCNPJ(cnpj: string): String {
+    //'12.103.781/0001-29'
+    return (cnpj.substring(0,2))+'.'+cnpj.substring(2,5)+'.'+cnpj.substring(5,8)+'/'+cnpj.substring(8,12)+'-'+cnpj.substring(12)
+  }
 
   public getEmpresa(){
     this.empresa = this.userService.getFilial()
@@ -65,9 +70,10 @@ export class InfoComponent implements OnInit {
         next: (v: any) => {
           if (v.hasContent == true) {
             setTimeout(() => {
+              v.cgc = this.formataCNPJ(v.cgc)
               this.empresa = {
-                empresa: v.empresa,
-                cnpj: v.cnpj,
+                empresa: v.nome,
+                cnpj: v.cgc,
                 endereco: v.endereco,
                 emissao: new Date().toLocaleDateString()
               }

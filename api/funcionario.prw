@@ -79,7 +79,7 @@ Static Function getArrFun(cId)
 
 	SRA->(DbSetOrder(5))  //RA_FILIAL + RA_CIC 	CPF
 	If SRA->(MsSeek(xFilial("SRA")+cId))
-		While !SRA->(Eof()) .AND. SRA->RA_CIC == cId
+		While !SRA->(Eof()) .AND. SRA->RA_CIC == cId .AND. AllTrim(SRA->RA_SITFOLH ) == ''
 			Aadd(aDados, JsonObject():new())
 			nPos := Len(aDados)
 			aDados[nPos]['matricula' ] := AllTrim(SRA->RA_MAT)
@@ -89,12 +89,7 @@ Static Function getArrFun(cId)
 			aDados[nPos]['cc' ] := AllTrim(SRA->RA_CC)
 			aDados[nPos]['cpf' ] := AllTrim(SRA->RA_CIC )
 			aDados[nPos]['categoria' ] := AllTrim(SRA->RA_CATFUNC )
-			IF AllTrim(SRA->RA_SITFOLH ) == ''
-				aDados[nPos]['situacao' ] := 'NORMAL'
-			ELSE
-				aDados[nPos]['situacao' ] := AllTrim(SRA->RA_SITFOLH )
-			ENDIF
-
+			aDados[nPos]['situacao' ] := 'NORMAL'
 
 			SRA->(DbSkip())
 		EndDo

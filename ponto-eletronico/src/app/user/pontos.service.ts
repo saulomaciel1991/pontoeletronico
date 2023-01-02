@@ -1,153 +1,26 @@
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { map } from 'rxjs';
+import { environment } from 'src/environments/environment';
+import { UserService } from './user.service';
+
+const auth = environment.authorization
+
+const httpOptions = {
+  headers: new HttpHeaders(
+    {
+      'Content-Type': 'application/json',
+      'Authorization': auth,
+    }
+  )
+};
 
 @Injectable({
   providedIn: 'root'
 })
 export class PontosService {
 
-  items: Array<any> = [
-    {
-      data: '2022-10-03',
-      dia: 'Segunda',
-      PE: '08:12:00',
-      PS: '12:10:00',
-      SE: '13:29:00',
-      SS: '18:24:00',
-      absent: '00:07:00',
-      jornada: '08:53:00',
-      matricula: '1201 - 000028'
-    },
-    {
-      data: '2022-10-04',
-      dia: 'Terça',
-      PE: '08:00:00',
-      PS: '12:10:00',
-      SE: '13:29:00',
-      SS: '18:24:00',
-      HE: '00:30:54',
-      absent: '00:07:00',
-      jornada: '09:00:00',
-      matricula: '1201 - 000028'
-    },
-    {
-      data: '2022-10-03',
-      dia: 'Quarta',
-      PE: '08:12:00',
-      PS: '12:10:00',
-      SE: '13:29:00',
-      SS: '18:24:00',
-      HE: '00:45:00',
-      absent: '00:07:00',
-      jornada: '08:53:00',
-      matricula: '1201 - 000028'
-    },
-    {
-      data: '2022-10-04',
-      dia: 'Quinta',
-      PE: '08:00:00',
-      PS: '12:10:00',
-      SE: '13:29:00',
-      SS: '18:24:00',
-      HE: '',
-      absent: '00:12:00',
-      jornada: '09:00:00',
-      matricula: '1 - 000028'
-    },
-    {
-      data: '2022-10-05',
-      dia: 'Quinta',
-      PE: '08:00:00',
-      PS: '12:10:00',
-      SE: '13:29:00',
-      SS: '18:24:00',
-      HE: '',
-      absent: '00:12:00',
-      jornada: '09:00:00',
-      matricula: '1 - 000028'
-    },
-    {
-      data: '2022-10-06',
-      dia: 'Quinta',
-      PE: '08:00:00',
-      PS: '12:10:00',
-      SE: '13:29:00',
-      SS: '18:24:00',
-      HE: '',
-      absent: '00:12:00',
-      jornada: '09:00:00',
-      matricula: '1 - 000028'
-    },{
-      data: '2022-10-03',
-      dia: 'Segunda',
-      PE: '08:12:00',
-      PS: '12:10:00',
-      SE: '13:29:00',
-      SS: '18:24:00',
-      absent: '00:07:00',
-      jornada: '08:53:00',
-      matricula: '1201 - 000028'
-    },
-    {
-      data: '2022-10-04',
-      dia: 'Terça',
-      PE: '08:00:00',
-      PS: '12:10:00',
-      SE: '13:29:00',
-      SS: '18:24:00',
-      HE: '00:30:54',
-      absent: '00:07:00',
-      jornada: '09:00:00',
-      matricula: '1201 - 000028'
-    },
-    {
-      data: '2022-10-03',
-      dia: 'Quarta',
-      PE: '08:12:00',
-      PS: '12:10:00',
-      SE: '13:29:00',
-      SS: '18:24:00',
-      HE: '00:45:00',
-      absent: '00:07:00',
-      jornada: '08:53:00',
-      matricula: '1201 - 000028'
-    },
-    {
-      data: '2022-10-04',
-      dia: 'Quinta',
-      PE: '08:00:00',
-      PS: '12:10:00',
-      SE: '13:29:00',
-      SS: '18:24:00',
-      HE: '',
-      absent: '00:12:00',
-      jornada: '09:00:00',
-      matricula: '1 - 000028'
-    },
-    {
-      data: '2022-10-05',
-      dia: 'Quinta',
-      PE: '08:00:00',
-      PS: '12:10:00',
-      SE: '13:29:00',
-      SS: '18:24:00',
-      HE: '',
-      absent: '00:12:00',
-      jornada: '09:00:00',
-      matricula: '1 - 000028'
-    },
-    {
-      data: '2022-10-06',
-      dia: 'Quinta',
-      PE: '08:00:00',
-      PS: '12:10:00',
-      SE: '13:29:00',
-      SS: '18:24:00',
-      HE: '',
-      absent: '00:12:00',
-      jornada: '09:00:00',
-      matricula: '1 - 000028'
-    }
-  ];
+  apiURL = environment.apiURL;
 
 
   descarte: Array<any> = [
@@ -224,49 +97,31 @@ export class PontosService {
     }
   ]
 
-  constructor() { }
+  constructor(private userService: UserService, private http: HttpClient) { }
 
 
-  public list(){
-    return this.items
+  public list(dtini?: string, dtfin?: string) {
+    let filial = this.userService.filatu
+    let mat = this.userService.matricula
+    let url = ''
+    if (dtini == undefined && dtfin == undefined)
+      url = this.apiURL+ `/marcacoes/?filial=${filial}&matricula=${mat}`
+    else
+      url = this.apiURL+ `/marcacoes/?filial=${filial}&matricula=${mat}&dtinicial=${dtini}&dtfinal=${dtfin}`
+
+    return this.http.get<any>(url, httpOptions,  ).pipe(
+      map((resposta: any) => resposta)
+    );
   }
 
-  public listDescartes(){
+  public listDescartes() {
     return this.descarte
   }
-  
-  public listHorarios(){
+
+  public listHorarios() {
     return this.horarios
   }
-  public listResumo(){
+  public listResumo() {
     return this.resumo
-  }
-
-  public resetFilters(){
-    return [...this.list()]
-  }
-
-  filter(filters: any) {
-    let filteredItems = [...this.list()];
-
-    let start = filters.data
-    let end = filters.dataATE
-
-    Object.keys(filters).forEach(filter => {
-      filteredItems = filteredItems.filter(pontos => {
-        if (filter == 'dia' || end === undefined) {
-          return pontos[filter].toLocaleLowerCase().includes(filters[filter].toLocaleLowerCase());
-        } else {
-            if (filter == 'data'){
-              return (pontos[filter] >= start && pontos[filter] <= end)
-            }else{
-              return (pontos['data'] <= end)
-            }
-          //return pontos[filter] === filters[filter];
-        }
-      });
-    });
-
-    return filteredItems;
   }
 }

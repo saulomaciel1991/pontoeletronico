@@ -2,18 +2,18 @@
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
-/* export const environment = {
+export const environment = {
   production: false,
   title: 'Dev Environment Heading',
   apiURL: 'http://192.168.41.60:8090/rest',
   authorization: "Basic " + btoa("admin:")
-}; */
-export const environment = {
+};
+/* export const environment = {
   production: false,
   title: 'Dev Environment Heading',
   apiURL: 'http://localhost:8084/rest',
   authorization: "Basic " + btoa("admin:12345")
-};
+}; */
 
 /*
  * For easier debugging in development mode, you can import the following file

@@ -19,8 +19,8 @@ export class FormComponent implements OnInit {
     private poNotification: PoNotificationService
   ) { }
 
-  ngOnInit(): void {
 
+  ngOnInit(): void {
   }
 
   setPassword(passwordForm: NgForm) {
