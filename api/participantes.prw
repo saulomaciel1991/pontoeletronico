@@ -12,10 +12,10 @@ END WSRESTFUL
 
 WSMETHOD GET WSSERVICE participantes
 	//http://192.168.41.60:8090/rest/participantes/?cpf=00976379473&senha=123456
+
 	Local aAreaRD0 := RD0->(GetArea())
 	Local cResponse := JsonObject():New()
 	Local lRet := .T.
-	Local aDados := {}
 	Local aParams := Self:AQueryString
 	Local cCpf := ""
 	Local cSenha := ""
@@ -36,7 +36,7 @@ WSMETHOD GET WSSERVICE participantes
 		WHERE
 			RD0.%NotDel%
 			AND RD0_CIC = %exp:cCpf%
-			//AND RD0_SENHA = %exp:cSenha%
+			// AND RD0_SENHA = %exp:cSenha%
 			AND RD0_MSBLQL = '2'
 			AND RD0_FUNC = '1'
 	ENDSQL
@@ -48,27 +48,22 @@ WSMETHOD GET WSSERVICE participantes
 
 	RD0->(DbGoTo(nRD0Reg))
 	If !RD0->(Eof())
-		Aadd(aDados, JsonObject():new())
-		nPos := Len(aDados)
-		IF (AllTrim(RD0->RD0_SENHA) == csenha)
+		If ALLTRIM(RD0->RD0_SENHA) == cSenha
 			cResponse['filial' ] := AllTrim(RD0->RD0_FILIAL)
 			cResponse['codigo' ] := AllTrim(RD0->RD0_CODIGO)
 			cResponse['nome' ] := AllTrim(RD0->RD0_NOME)
 			cResponse['cpf' ] := AllTrim(RD0->RD0_CIC)
-			cResponse['filialAtuacao'] := AllTrim(RD0->RD0_FILATU)
+			cResponse['filialAtuacao'] := GetFilial(cCpf)
 			cResponse['hasContent'] := .T.
-		ELSE
+		Else
 			cResponse['code'] := 403
-			cResponse['message'] := 'Senha incorreta'
-			lRet := .F.
-		ENDIF
-
+			cResponse['message'] := 'Senha Incorreta'
+		EndIf
 	EndIf
 
 	If nRD0Reg == 0
-		//SetRestFault(204, "Nenhum registro encontrado!")
 		cResponse['code'] := 403
-		cResponse['message'] := 'Login incorreto ou usuário não encontrado'
+		cResponse['message'] := 'Login Incorreto ou Usuario Incorreto'
 		lRet := .F.
 	EndIf
 
@@ -125,10 +120,9 @@ WSMETHOD PUT WSSERVICE participantes
 		Aadd(aErro, .F.)
 	Else
 		Aadd(aErro, .T.)
-		Aadd(aErro, "Senha atual incorreta")
+		Aadd(aErro, "Usuario ou Senha Invalido")
 	EndIf
 
-	// aErro := U_A_MATA410(oParticipante)
 	lErro := aErro[1]
 
 	If lErro
@@ -157,3 +151,26 @@ Static Function cripSenha(senha)
 	cSenhaCorr := aLetras[2]+aLetras[4]+aLetras[6]+aLetras[1]+aLetras[3]+aLetras[5]
 Return cSenhaCorr
 
+Static Function GetFilial(cId)
+	Local aArea := GetArea()
+	Local aAreaSRA := SRA->(GetArea())
+	Local cFilAtuacao := ""
+
+	BEGINSQL ALIAS 'TSRA'
+		SELECT
+			SRA.RA_FILIAL
+		FROM %Table:SRA% AS SRA
+		WHERE
+			SRA.%NotDel% AND
+			SRA.RA_CIC = %exp:cId% AND
+			SRA.RA_SITFOLH = ''
+	ENDSQL
+
+	If !TSRA->(Eof())
+		cFilAtuacao := TSRA->RA_FILIAL
+	EndIf
+	TSRA->(DbCloseArea())
+
+	SRA->(RestArea(aAreaSRA))
+	RestArea(aArea)
+Return cFilAtuacao
