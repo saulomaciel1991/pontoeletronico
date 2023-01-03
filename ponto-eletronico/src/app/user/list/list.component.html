@@ -4,11 +4,12 @@
     [p-filters]="filters"
     [p-keep-filters]="true"
     [p-literals]="customLiterals"
+    [p-load]="onLoadFields.bind(this)"
     (p-advanced-search)="onAdvancedSearch($event)"
     (p-change-disclaimers)="onChangeDisclaimers($event)"
     (p-quick-search)="onQuickSearch($event)">
 
-    <div class="table" id="htmlData">
+    <div class="table" id="htmlData" #htmlData>
 
         <div class="padding">
             <po-table
@@ -21,6 +22,7 @@
             </po-table>
 
             <br>
+            <p class="po-font-text-large cor">Horários</p>
             <po-table
                 [p-loading]="loadingH"
                 p-container="shadow"
