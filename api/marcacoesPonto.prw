@@ -18,6 +18,7 @@ WSMETHOD GET WSSERVICE marcacoes
 	Local cResponse := JsonObject():New()
 	Local lRet := .T.
 	Local aDados := {}
+	Local aResumo := {}
 	Local aPontos := {}
 	Local aParams := Self:AQueryString
 	Local cFilFunc := ""
@@ -47,7 +48,11 @@ WSMETHOD GET WSSERVICE marcacoes
 	EndIf
 
 	If cDataIni == '19000101'
-		nMes := MONTH(Date())-1
+		If MONTH(Date()) == 1
+			nMes := 12
+		Else
+			nMes := MONTH(Date())-1
+		EndIf
 
 		BEGINSQL ALIAS 'TSP8'
 		SELECT
@@ -75,6 +80,8 @@ WSMETHOD GET WSSERVICE marcacoes
 			ORDER BY SP8.P8_DATA
 		ENDSQL
 	EndIf
+
+	GetResumo(@aResumo, cFilFunc, cMatricula, cDataIni, cDataFin)
 
 	While !TSP8->(Eof())
 		Aadd(aDados, JsonObject():new())
@@ -141,6 +148,7 @@ WSMETHOD GET WSSERVICE marcacoes
 		lRet := .F.
 	Else
 		cResponse['marcacoes'] := aDados
+		cResponse['resumo'] := aResumo
 		cResponse['hasContent'] := .T.
 	EndIf
 
@@ -295,3 +303,29 @@ Static Function MTOH(nMinutos) //deve vim como um numero inteiro
 	nMinutos += (nResto / 100) //adiciono os minutos que tinham sobrado a hora
 
 Return nMinutos
+
+Static Function GetResumo(aResumo, cFilFunc, cMatricula, cDataIni, cDataFin)
+
+	BEGINSQL ALIAS 'TSPH'
+		SELECT
+			SPH.PH_PD, SUM(SPH.PH_QUANTC) AS TOTAL
+		FROM %Table:SPH% AS SPH
+		WHERE
+			SPH.%NotDel%
+			AND SPH.PH_FILIAL = %exp:cFilFunc%
+			AND SPH.PH_DATA BETWEEN %exp:cDataIni% AND %exp:cDataFin%
+			AND SPH.PH_MAT = %exp:cMatricula%
+			GROUP BY SPH.PH_PD
+	ENDSQL
+
+	While !TSPH->(Eof())
+		Aadd(aResumo, JsonObject():new())
+		nPos := Len(aResumo)
+		aResumo[nPos]['codEvento'] := TSPH->PH_PD
+		aResumo[nPos]['descEvento'] := ALLTRIM(POSICIONE("SP9", 1, xFilial("SP9")+TSPH->PH_PD, "P9_DESC"))
+		aResumo[nPos]['totalHoras'] := TSPH->TOTAL
+		TSPH->(DbSkip())
+	EndDo
+
+	TSPH->(DbCloseArea())
+Return
