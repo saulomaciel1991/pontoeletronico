@@ -147,6 +147,11 @@ export class ListComponent implements OnInit {
       return dateObject
 
     } else {
+      this.poDialog.alert({
+        literals: { ok: 'Fechar' },
+        title: 'Nenhum dado encontrado!',
+        message: 'Por favor tente buscar a data no formato dd/mm/aa ou dd/mm/aaaa'
+      })
       return data
     }
   }
