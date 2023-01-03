@@ -51,7 +51,7 @@ Static Function getArrFun(cId)
 		WHERE
 			SRA.%NotDel% AND
 			SRA.RA_CIC = %exp:cId% AND
-			SRA.RA_SITFOLH = ''
+			SRA.RA_SITFOLH IN (' ', 'F')
 	ENDSQL
 
 	If !TSRA->(Eof())
@@ -60,7 +60,7 @@ Static Function getArrFun(cId)
 	TSRA->(DbCloseArea())
 
 	SRA->(DbGoto(nSRAreg))
-	While !SRA->(Eof()) .AND. SRA->RA_CIC == cId .AND. AllTrim(SRA->RA_SITFOLH ) == ''
+	While !SRA->(Eof()) .AND. SRA->RA_CIC == cId
 		Aadd(aDados, JsonObject():new())
 		nPos := Len(aDados)
 		aDados[nPos]['matricula' ] := AllTrim(SRA->RA_MAT)
@@ -70,9 +70,13 @@ Static Function getArrFun(cId)
 		aDados[nPos]['cc' ] := AllTrim(SRA->RA_CC)
 		aDados[nPos]['cpf' ] := AllTrim(SRA->RA_CIC )
 		aDados[nPos]['categoria' ] := AllTrim(SRA->RA_CATFUNC )
-		aDados[nPos]['situacao' ] := 'NORMAL'
+		if (AllTrim(SRA->RA_SITFOLH ) == '')
+			aDados[nPos]['situacao' ] := 'NORMAL'
+		elseif AllTrim(SRA->RA_SITFOLH ) == 'F'
+			aDados[nPos]['situacao' ] := 'FÉRIAS'
+		end if
 		aDados[nPos]['departamento' ] := ALLTRIM(POSICIONE("SQB", 1, xFilial("SQB")+SRA->RA_DEPTO, "QB_DESCRIC"))
-		
+
 		SRA->(DbSkip())
 	EndDo
 
