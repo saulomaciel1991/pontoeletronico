@@ -21,6 +21,9 @@ const httpOptions = {
 export class PontosService {
 
   apiURL = environment.apiURL;
+  turno = ''
+  seq = ''
+
 
 
   descarte: Array<any> = [
@@ -29,57 +32,6 @@ export class PontosService {
       hora: '18:24:00',
       motivo: 'EXCLUSÃO MANUAL'
     }
-  ]
-
-  horarios: Array<any> = [
-    {
-      data: '2022-10-01',
-      PE: '08:00:00',
-      PS: '12:10:00',
-      SE: '13:29:00',
-      SS: '18:24:00',
-      turno: '001 - 08:00 12:00/13:00 18:00'
-    },
-    {
-      data: '2022-10-01',
-      PE: '08:00:00',
-      PS: '12:10:00',
-      SE: '13:29:00',
-      SS: '18:24:00',
-      turno: '001 - 08:00 12:00/13:00 18:00'
-    },
-    {
-      data: '2022-10-01',
-      PE: '08:00:00',
-      PS: '12:10:00',
-      SE: '13:29:00',
-      SS: '18:24:00',
-      turno: '001 - 08:00 12:00/13:00 18:00'
-    },
-    {
-      data: '2022-10-01',
-      PE: '08:00:00',
-      PS: '12:10:00',
-      SE: '13:29:00',
-      SS: '18:24:00',
-      turno: '001 - 08:00 12:00/13:00 18:00'
-    },
-    {
-      data: '2022-10-01',
-      PE: '08:00:00',
-      PS: '12:10:00',
-      SE: '13:29:00',
-      SS: '18:24:00',
-      turno: '001 - 08:00 12:00/13:00 18:00'
-    },
-    {
-      data: '2022-10-01',
-      PE: '08:00:00',
-      PS: '12:10:00',
-      SE: '13:29:00',
-      SS: '18:24:00',
-      turno: '001 - 08:00 12:00/13:00 18:00'
-    },
   ]
 
   resumo: Array<any> = [
@@ -113,14 +65,19 @@ export class PontosService {
       map((resposta: any) => resposta)
     );
   }
+  public listHorarios() {
+    let url = this.apiURL+ `/turnos/?turno=${this.turno}&seq=${this.seq}`
+    console.log(url)
+    return this.http.get<any>(url, httpOptions,  ).pipe(
+      map((resposta: any) => resposta)
+    );
+  }
 
   public listDescartes() {
     return this.descarte
   }
 
-  public listHorarios() {
-    return this.horarios
-  }
+  
   public listResumo() {
     return this.resumo
   }

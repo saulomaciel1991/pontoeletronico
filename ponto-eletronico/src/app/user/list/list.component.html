@@ -12,7 +12,7 @@
 
         <div class="padding">
             <po-table
-                [p-loading] = "loading"
+                [p-loading]="loading"
                 p-container="shadow"
                 [p-sort]="true"
                 [p-columns]="columns"
@@ -21,14 +21,16 @@
             </po-table>
 
             <br>
-            <app-pontos-descartados></app-pontos-descartados>
+            <po-table
+                [p-loading]="loadingH"
+                p-container="shadow"
+                [p-sort]="true"
+                [p-columns]="horarios"
+                [p-items]="itemsHorarios"
+                [p-striped]="true">
+            </po-table>
 
-            <br>
 
-            <app-horarios></app-horarios>
-
-            <br>
-            <app-resumo></app-resumo>
         </div>
     </div>
 </po-page-dynamic-search>

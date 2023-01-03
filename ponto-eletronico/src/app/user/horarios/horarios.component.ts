@@ -13,10 +13,10 @@ export class HorariosComponent implements OnInit {
 
   columns: Array<PoTableColumn> = [
     { property: 'data', type: 'date', width: '12,5%', label: 'Data' },
-    { property: 'PE', width: '14,625%', label: '1ª Entrada', type: 'time', format: 'HH:mm' },
-    { property: 'PS', width: '14,625%', label: '1ª Saída', type: 'time', format: 'HH:mm' },
-    { property: 'SE', width: '14,625%', label: '2ª Entrada', type: 'time', format: 'HH:mm' },
-    { property: 'SS', width: '14,625%', label: '2ª Saída', type: 'time', format: 'HH:mm' },
+    { property: '1E', width: '14,625%', label: '1ª Entrada', type: 'time', format: 'HH:mm' },
+    { property: '1S', width: '14,625%', label: '1ª Saída', type: 'time', format: 'HH:mm' },
+    { property: '2E', width: '14,625%', label: '2ª Entrada', type: 'time', format: 'HH:mm' },
+    { property: '2S', width: '14,625%', label: '2ª Saída', type: 'time', format: 'HH:mm' },
     { property: 'turno', width: '25%', label: 'Turno' },
     { property: 'matricula', visible: false, type: 'string' }
 
@@ -25,8 +25,5 @@ export class HorariosComponent implements OnInit {
   constructor(private pontosService: PontosService) { }
 
   ngOnInit(): void {
-
-    this.items = this.pontosService.listHorarios()
   }
-
 }

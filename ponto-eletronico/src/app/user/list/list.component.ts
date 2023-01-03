@@ -14,8 +14,10 @@ export class ListComponent implements OnInit {
   @ViewChild('htmlData') htmlData!: ElementRef;
 
   items: Array<any> = []
+  itemsHorarios: Array<any> = []
   marcacoes = []
   loading = true
+  loadingH = true
 
   customLiterals: PoPageDynamicSearchLiterals = {
     searchPlaceholder: 'Buscar uma data'
@@ -28,7 +30,7 @@ export class ListComponent implements OnInit {
   public readonly filters: Array<PoPageDynamicSearchFilters> = [
     { property: 'data', label: 'Data de', type: 'date', gridColumns: 6 },
     { property: 'dataATE', label: 'Data até', type: 'date', gridColumns: 6 },
-    { property: 'dia', label: 'Dia da Semana', gridColumns: 6 }
+    //{ property: 'dia', label: 'Dia da Semana', gridColumns: 6 }
   ]
 
   columns: Array<PoTableColumn> = [
@@ -48,6 +50,19 @@ export class ListComponent implements OnInit {
 
   ];
 
+
+
+  horarios: Array<PoTableColumn> = [
+    { property: 'dia', type: 'string', width: '12,5%', label: 'Dia' },
+    { property: '1E', width: '14,625%', label: '1ª Entrada', type: 'time', format: 'HH:mm' },
+    { property: '1S', width: '14,625%', label: '1ª Saída', type: 'time', format: 'HH:mm' },
+    { property: '2E', width: '14,625%', label: '2ª Entrada', type: 'time', format: 'HH:mm' },
+    { property: '2S', width: '14,625%', label: '2ª Saída', type: 'time', format: 'HH:mm' },
+    { property: 'turno', width: '25%', label: 'Turno' },
+    { property: 'matricula', visible: false, type: 'string' }
+
+  ];
+
   constructor(private pontosService: PontosService, private poDialog: PoDialogService) { }
 
   ngOnInit(): void {
@@ -62,9 +77,12 @@ export class ListComponent implements OnInit {
           console.log(v)
           if (v.hasContent == true) {
             setTimeout(() => {
+              let turno = v.marcacoes[0].turno
+              let seq = v.marcacoes[0].seqTurno
               this.items = v.marcacoes
               //this.items = .sort( (a:any,b:any) => a.data - b.data );
               this.loading = false
+              this.getHorarios(turno, seq)
             }, 500);
           } else {
             if (ini == undefined && fin == undefined) {
@@ -73,7 +91,7 @@ export class ListComponent implements OnInit {
                 title: 'Nenhum dado encontrado!',
                 message: 'Nenhuma marcação de ponto encontrada.'
               });
-            }else {
+            } else {
               this.poDialog.alert({
                 literals: { ok: 'Fechar' },
                 title: 'Nenhum dado encontrado!',
@@ -89,6 +107,33 @@ export class ListComponent implements OnInit {
         })
       })
 
+  }
+
+  getHorarios(turno: string, seq: string) {
+    console.log(turno, seq)
+    this.pontosService.turno = turno
+    this.pontosService.seq = seq
+    this.pontosService.listHorarios()
+      .subscribe({
+        next: (v: any) => {
+          console.log(v)
+          if (v != undefined) {
+            setTimeout(() => {
+              this.itemsHorarios = v.horarios
+              v.horarios = v.horarios.map((item: any) => {
+                item['1S'] = item['1S'] + ':00'
+                item['2S'] = item['2S'] + ':00'
+                item['1E'] = item['1E'] + ':00'
+                item['2E'] = item['2E'] + ':00'
+                //console.log(item)
+              })
+              
+              this.loadingH = false
+            }, 500);
+
+          }
+        }
+      })
   }
 
   converteData(data: string) {
