@@ -18,6 +18,7 @@ WSMETHOD GET WSSERVICE marcacoes
 	Local cResponse := JsonObject():New()
 	Local lRet := .T.
 	Local aDados := {}
+	Local aResumo := {}
 	Local aPontos := {}
 	Local aParams := Self:AQueryString
 	Local cFilFunc := ""
@@ -31,6 +32,7 @@ WSMETHOD GET WSSERVICE marcacoes
 	Local cHorasAbonadas := cMotivoAbono := ""
 	Local cHoras1T := cHoras2T := cTotalHoras := ""
 	Local cTurno := ""
+	Local cSqTurno := ""
 
 	Default cDataIni := cDataFin := "19000101"
 
@@ -46,7 +48,11 @@ WSMETHOD GET WSSERVICE marcacoes
 	EndIf
 
 	If cDataIni == '19000101'
-		nMes := MONTH(Date())-1
+		If MONTH(Date()) == 1
+			nMes := 12
+		Else
+			nMes := MONTH(Date())-1
+		EndIf
 
 		BEGINSQL ALIAS 'TSP8'
 		SELECT
@@ -75,11 +81,13 @@ WSMETHOD GET WSSERVICE marcacoes
 		ENDSQL
 	EndIf
 
+	GetResumo(@aResumo, cFilFunc, cMatricula, cDataIni, cDataFin)
+
 	While !TSP8->(Eof())
 		Aadd(aDados, JsonObject():new())
 		nPos := Len(aDados)
 		GetAbono(AllTrim(TSP8->P8_MAT), TSP8->P8_DATA, @cHorasAbonadas, @cMotivoAbono)
-		GetTurno(@cTurno)
+		GetTurno(@cTurno, @cSqTurno)
 		aDados[nPos]['filial' ] := AllTrim(TSP8->P8_FILIAL)
 		aDados[nPos]['matricula' ] := AllTrim(TSP8->P8_MAT)
 		aDados[nPos]['data' ] := ConvertData(AllTrim(TSP8->P8_DATA))
@@ -88,6 +96,7 @@ WSMETHOD GET WSSERVICE marcacoes
 		aDados[nPos]['ordemClassificacao'] := AllTrim(TSP8->P8_CC)
 		aDados[nPos]['motivoRegistro'] := AllTrim(TSP8->P8_MOTIVRG)
 		aDados[nPos]['turno'] := AllTrim(TSP8->P8_TURNO)
+		aDados[nPos]['seqTurno'] := cSqTurno
 		aDados[nPos]['abono'] := cHorasAbonadas
 		aDados[nPos]['observacoes'] := cMotivoAbono
 
@@ -139,6 +148,7 @@ WSMETHOD GET WSSERVICE marcacoes
 		lRet := .F.
 	Else
 		cResponse['marcacoes'] := aDados
+		cResponse['resumo'] := aResumo
 		cResponse['hasContent'] := .T.
 	EndIf
 
@@ -200,12 +210,12 @@ Static Function GetAbono(cMatricula, cDataAbono, cHorasAbonadas, cMotivoAbono)
 	SPK->(RestArea(aAreaSPK))
 Return
 
-Static Function GetTurno(cTurno)
+Static Function GetTurno(cTurno, cSqTurno)
 	Local nDia := DOW(STOD(TSP8->P8_DATA))
 
 	BEGINSQL ALIAS 'TSPJ'
 		SELECT
-			SPJ.PJ_HRTOTAL
+			SPJ.PJ_HRTOTAL, SPJ.PJ_SEMANA
 		FROM %Table:SPJ% AS SPJ
 		WHERE
 			SPJ.%NotDel%
@@ -216,6 +226,7 @@ Static Function GetTurno(cTurno)
 
 	If !TSPJ->(Eof())
 		cTurno := ConvertHora(TSPJ->PJ_HRTOTAL)
+		cSqTurno := TSPJ->PJ_SEMANA
 	EndIf
 	TSPJ->(DbCloseArea())
 Return
@@ -292,3 +303,29 @@ Static Function MTOH(nMinutos) //deve vim como um numero inteiro
 	nMinutos += (nResto / 100) //adiciono os minutos que tinham sobrado a hora
 
 Return nMinutos
+
+Static Function GetResumo(aResumo, cFilFunc, cMatricula, cDataIni, cDataFin)
+
+	BEGINSQL ALIAS 'TSPH'
+		SELECT
+			SPH.PH_PD, SUM(SPH.PH_QUANTC) AS TOTAL
+		FROM %Table:SPH% AS SPH
+		WHERE
+			SPH.%NotDel%
+			AND SPH.PH_FILIAL = %exp:cFilFunc%
+			AND SPH.PH_DATA BETWEEN %exp:cDataIni% AND %exp:cDataFin%
+			AND SPH.PH_MAT = %exp:cMatricula%
+			GROUP BY SPH.PH_PD
+	ENDSQL
+
+	While !TSPH->(Eof())
+		Aadd(aResumo, JsonObject():new())
+		nPos := Len(aResumo)
+		aResumo[nPos]['codEvento'] := TSPH->PH_PD
+		aResumo[nPos]['descEvento'] := ALLTRIM(POSICIONE("SP9", 1, xFilial("SP9")+TSPH->PH_PD, "P9_DESC"))
+		aResumo[nPos]['totalHoras'] := TSPH->TOTAL
+		TSPH->(DbSkip())
+	EndDo
+
+	TSPH->(DbCloseArea())
+Return

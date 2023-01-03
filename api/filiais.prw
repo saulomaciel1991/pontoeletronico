@@ -24,14 +24,16 @@ WSMETHOD GET WSSERVICE filiais
 	If nPosId > 0
 		cFilFunc := aParams[nPosId,2]
 		aDadosFilial := FWSM0Util():GetSM0Data( cEmpAnt , cFilFunc , aCampos)
-		
-		Aadd(aDados, JsonObject():new())
-		nPos := Len(aDados)
-		cResponse['filial' ] := ALLTRIM(aDadosFilial[1][2])
-		cResponse['nome' ] := ALLTRIM(aDadosFilial[2][2])
-		cResponse['cgc' ] := ALLTRIM(aDadosFilial[3][2])
-		cResponse['endereco' ] := ALLTRIM(aDadosFilial[4][2])
-		cResponse['hasContent'] := .T.
+
+		If Len(aDadosFilial) > 0
+			Aadd(aDados, JsonObject():new())
+			nPos := Len(aDados)
+			cResponse['filial' ] := ALLTRIM(aDadosFilial[1][2])
+			cResponse['nome' ] := ALLTRIM(aDadosFilial[2][2])
+			cResponse['cgc' ] := ALLTRIM(aDadosFilial[3][2])
+			cResponse['endereco' ] := ALLTRIM(aDadosFilial[4][2])
+			cResponse['hasContent'] := .T.
+		EndIf
 	EndIf
 
 	If nPosId == 0
