@@ -14,10 +14,57 @@
     (p-password-change)="passwordChange()">
 </po-page-login>
 
-<po-modal p-title="Esqueceu a senha?" [p-hide-close]="true">
-    <div class="center">
-        <p>
-            Entre em contato com o suporte de sua empresa para recuperar a sua senha.
-        </p>
+<po-modal p-title="Deseja resetar a sua senha?" [p-hide-close]="true"
+    [p-primary-action]="confirm" [p-secondary-action]="close">
+    <div>
+        <div>
+
+            <p>Para resetar a senha é so informar seu CPF e a senha.
+                A senha resetada deve seguir o padrão abaixo:
+            </p>
+            <p>
+                <span>
+                    Ano de Nascimento do Funcionário + Dia da Admissão +
+                    Digito do CPF
+                </span>
+            </p>
+            <p>
+                EX: Um funcionário nascido em 20/11/66, admitido em 14/09/90 e
+                com
+                CPF
+                123.732.768-55, a senha gerada será: "661455"
+            </p>
+        </div>
+        <br>
+        <form #recoveryForm="ngForm">
+            <div class="po-row">
+                <po-input
+                    class="po-sm-6 po-md-6"
+                    name="cpf"
+                    [(ngModel)]="cpf"
+                    p-clean
+                    p-label="CPF"
+                    [p-minlength]="11"
+                    [p-maxlength]="11"
+                    p-pattern="^[0-9]{1,11}$"
+                    p-error-pattern="O CPF deve possuir 11 (onze) números!"
+                    p-required>
+                </po-input>
+
+                <po-password
+                    class="po-sm-6 po-md-6"
+                    name="password"
+                    [(ngModel)]="password"
+                    p-clean
+                    p-label="Nova Senha"
+                    [p-minlength]="6"
+                    [p-maxlength]="6"
+                    p-pattern="^[0-9]{1,6}$"
+                    p-error-pattern="Senha deve possuir 6 (seis) caracteres
+                    numéricos!"
+                    p-required>
+                </po-password>
+            </div>
+        </form>
     </div>
 </po-modal>
