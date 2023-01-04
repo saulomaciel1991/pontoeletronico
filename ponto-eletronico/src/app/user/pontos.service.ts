@@ -63,8 +63,11 @@ export class PontosService {
     );
   }
 
-  public getBancoHoras(){
-    let url = this.apiURL
+  public getBancoHoras(dtini: string, dtfin: string){
+    let filial = this.userService.filatu
+    let mat = this.userService.matricula
+    let url = this.apiURL + `/bh/?FILIAL=${filial}&MATRICULA=${mat}&DTINICIAL=${dtini}&DTFINAL=${dtfin}`
+    console.log(url)
     return this.http.get<any>(url, httpOptions,  ).pipe(
       map((resposta: any) => resposta)
     );

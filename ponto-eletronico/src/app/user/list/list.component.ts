@@ -62,11 +62,11 @@ export class ListComponent implements OnInit {
   ];
 
   banco: Array<PoTableColumn> = [
-    { property: 'bancoHoras', type: 'string', width: '32%', label: 'Banco de Horas' },
-    { property: 'saldoAnterior', width: '17%', label: 'Saldo Anterior', type: 'number' },
-    { property: 'credito', width: '17%', label: 'Crédito', type:'number' },
-    { property: 'debito', width: '17%', label: 'Débito', type:'number' },
-    { property: 'saldoAtual', width: '17%', label: 'Saldo Atual', type:'number' },
+    //{ property: 'bancoHoras', type: 'string', width: '32%', label: 'Banco de Horas' },
+    { property: 'saldoAnterior', width: '25%', label: 'Saldo Anterior', type: 'time', format: 'HH:mm' },
+    { property: 'totalCreditos', width: '25%', label: 'Crédito', type:'time', format: 'HH:mm' },
+    { property: 'totalDebitos', width: '25%', label: 'Débito', type:'time', format: 'HH:mm' },
+    { property: 'saldoAtual', width: '25%', label: 'Saldo Atual', type:'time', format: 'HH:mm' },
 
 
 
@@ -83,7 +83,6 @@ export class ListComponent implements OnInit {
     let month = today.getMonth() - 1 //por enquanto busca os pontos do mês anterior
     let start = new Date(today.getFullYear(), month, 1).toISOString().slice(0, 10)
     let end = new Date(today.getFullYear(), month + 1, 0).toISOString().slice(0, 10)
-    console.log(month, start, end)
     return {
       filters: [
         { property: 'data', initValue: start },
@@ -97,7 +96,6 @@ export class ListComponent implements OnInit {
     this.pontosService.list(ini, fin)
       .subscribe({
         next: (v: any) => {
-          console.log(v)
           if (v.hasContent == true) {
             setTimeout(() => {
               let turno = v.marcacoes[0].turno
@@ -132,14 +130,24 @@ export class ListComponent implements OnInit {
 
   }
 
+  getBancoHora(dtini: string, dtfin: string){
+    this.pontosService.getBancoHoras(dtini, dtfin)
+    .subscribe({
+      next: (v: any) =>{
+        if (v.bh != undefined){
+          this.bancohorarios = v.bh
+          this.loadingB = false
+        }
+      }
+    })
+  }
+
   getHorarios(turno: string, seq: string) {
-    console.log(turno, seq)
     this.pontosService.turno = turno
     this.pontosService.seq = seq
     this.pontosService.listHorarios()
       .subscribe({
         next: (v: any) => {
-          console.log(v)
           if (v != undefined) {
             setTimeout(() => {
               this.itemsHorarios = v.horarios
@@ -188,7 +196,6 @@ export class ListComponent implements OnInit {
 
   onChangeDisclaimers(disclaimers: any) {
     const filter: any = {};
-    console.log(disclaimers)
     disclaimers.forEach((item: any) => {
       filter[item.property] = item.value;
     });
@@ -208,7 +215,6 @@ export class ListComponent implements OnInit {
   }
 
   private searchItems(filter: any) {
-    console.log(filter)
     let start = (filter.data)
     let end = (filter.dataATE)
 
@@ -221,6 +227,7 @@ export class ListComponent implements OnInit {
       end = end.replaceAll('-', '')
     }
     this.getlist(start, end);
+    this.getBancoHora(start, end)
   }
   private resetFilters() {
     this.getlist()
@@ -243,17 +250,13 @@ export class ListComponent implements OnInit {
       let fileHeight = (canvas.height * fileWidth) / canvas.width;
       const FILEURI = canvas.toDataURL('image/png');
       let PDF = new jsPDF('p', 'mm', 'a4');
-      let position = 50;
+      let position = 30;
       
-      PDF.text(html, 20, 20, {baseline: 'top'})
+      PDF.text(html, 10, 10, {baseline: 'top'})
       //PDF.addPage()
       PDF.addImage(FILEURI, 'PNG', 0, position, fileWidth, fileHeight);
       PDF.save('espelho-ponto.pdf');
     });
-  }
-
-  downloadPDFWithBrowserPrint() {
-    window.print();
   }
 
 }
