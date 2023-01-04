@@ -15,9 +15,10 @@ export class ListComponent implements OnInit {
 
   items: Array<any> = []
   itemsHorarios: Array<any> = []
-  marcacoes = []
+  bancohorarios: Array<any> = []
   loading = true
   loadingH = true
+  loadingB = true
 
   customLiterals: PoPageDynamicSearchLiterals = {
     searchPlaceholder: 'Buscar uma data'
@@ -57,6 +58,17 @@ export class ListComponent implements OnInit {
     { property: '2S', width: '14,625%', label: '2ª Saída', type: 'time', format: 'HH:mm' },
     { property: 'turno', width: '25%', label: 'Turno' },
     { property: 'matricula', visible: false, type: 'string' }
+
+  ];
+
+  banco: Array<PoTableColumn> = [
+    { property: 'bancoHoras', type: 'string', width: '32%', label: 'Banco de Horas' },
+    { property: 'saldoAnterior', width: '17%', label: 'Saldo Anterior', type: 'number' },
+    { property: 'credito', width: '17%', label: 'Crédito', type:'number' },
+    { property: 'debito', width: '17%', label: 'Débito', type:'number' },
+    { property: 'saldoAtual', width: '17%', label: 'Saldo Atual', type:'number' },
+
+
 
   ];
 
@@ -216,16 +228,32 @@ export class ListComponent implements OnInit {
 
 
   public openPDF(): void {
+    var html = 'Empresa: BCI Comercializadora           cnpj: 19.191.0101/100-00'
+    /* let printContents: any = document.getElementById('htmlData');
+    var originalContents = document.body.innerHTML;
+
+    document.body.innerHTML = printContents.innerHTML;
+
+    window.print();
+
+    document.body.innerHTML = originalContents; */
     let DATA: any = document.getElementById('htmlData');
     html2canvas(DATA).then((canvas) => {
       let fileWidth = 208;
       let fileHeight = (canvas.height * fileWidth) / canvas.width;
       const FILEURI = canvas.toDataURL('image/png');
       let PDF = new jsPDF('p', 'mm', 'a4');
-      let position = 0;
+      let position = 50;
+      
+      PDF.text(html, 20, 20, {baseline: 'top'})
+      //PDF.addPage()
       PDF.addImage(FILEURI, 'PNG', 0, position, fileWidth, fileHeight);
       PDF.save('espelho-ponto.pdf');
     });
+  }
+
+  downloadPDFWithBrowserPrint() {
+    window.print();
   }
 
 }
