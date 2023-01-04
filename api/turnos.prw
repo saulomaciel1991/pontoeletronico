@@ -87,7 +87,7 @@ Static Function ConvertHora(nHora)
 	EndIf
 
 	If Len(cHora) == 5
-		cHora := STRTRAN(cHora,".",":")
+		cHora := STRTRAN(cHora,".",":") + ":00"
 	Else
 		cHora := "00:00:00"
 	EndIf
