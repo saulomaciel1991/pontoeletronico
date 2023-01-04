@@ -36,9 +36,7 @@ WSMETHOD GET WSSERVICE participantes
 		WHERE
 			RD0.%NotDel%
 			AND RD0_CIC = %exp:cCpf%
-			// AND RD0_SENHA = %exp:cSenha%
 			AND RD0_MSBLQL = '2'
-			AND RD0_FUNC = '1'
 	ENDSQL
 
 	If !TRD0->(Eof())
