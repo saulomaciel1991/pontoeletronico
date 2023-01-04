@@ -5,6 +5,13 @@ import { PontosService } from '../pontos.service';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
+//import pdfMake from 'pdfmake/build/pdfmake';
+import * as pdfMake from "pdfmake/build/pdfmake";
+import * as pdfFonts from "pdfmake/build/vfs_fonts";
+const htmlToPdfmake = require("html-to-pdfmake");
+(pdfMake as any).vfs = pdfFonts.pdfMake.vfs;
+//pdfMake.vsf = pdfFonts.pdfMake.vsf;
+
 @Component({
   selector: 'app-list',
   templateUrl: './list.component.html',
@@ -24,13 +31,12 @@ export class ListComponent implements OnInit {
   };
 
   public readonly actions: Array<PoPageAction> = [
-    { label: 'Exportar para PDF', action: this.openPDF.bind(this), icon: 'po-icon-pdf' },
+    { label: 'Exportar para PDF', action: this.savePDF.bind(this), icon: 'po-icon-pdf' },
   ]
 
   public readonly filters: Array<PoPageDynamicSearchFilters> = [
     { property: 'data', label: 'Data de', type: 'date', gridColumns: 6 },
     { property: 'dataATE', label: 'Data até', type: 'date', gridColumns: 6 },
-    //{ property: 'dia', label: 'Dia da Semana', gridColumns: 6 }
   ]
 
   columns: Array<PoTableColumn> = [
@@ -66,8 +72,22 @@ export class ListComponent implements OnInit {
   constructor(private pontosService: PontosService, private poDialog: PoDialogService) { }
 
   ngOnInit(): void {
+  }
 
-    this.getlist()
+  onLoadFields() {
+
+    const today = new Date()
+    let month = today.getMonth() - 1 //por enquanto busca os pontos do mês anterior
+    let start = new Date(today.getFullYear(), month, 1).toISOString().slice(0, 10)
+    let end = new Date(today.getFullYear(), month + 1, 0).toISOString().slice(0, 10)
+    console.log(month, start, end)
+    return {
+      filters: [
+        { property: 'data', initValue: start },
+        { property: 'dataATE', initValue: end }
+      ],
+      keepFilters: true
+    };
   }
 
   getlist(ini?: string, fin?: string) {
@@ -127,7 +147,7 @@ export class ListComponent implements OnInit {
                 item['2E'] = item['2E'] + ':00'
                 //console.log(item)
               })
-              
+
               this.loadingH = false
             }, 500);
 
@@ -147,6 +167,11 @@ export class ListComponent implements OnInit {
       return dateObject
 
     } else {
+      this.poDialog.alert({
+        literals: { ok: 'Fechar' },
+        title: 'Nenhum dado encontrado!',
+        message: 'Por favor tente buscar a data no formato dd/mm/aa ou dd/mm/aaaa'
+      })
       return data
     }
   }
@@ -218,6 +243,13 @@ export class ListComponent implements OnInit {
       PDF.addImage(FILEURI, 'PNG', 0, position, fileWidth, fileHeight);
       PDF.save('espelho-ponto.pdf');
     });
+  }
+
+  public savePDF() {
+    /* const pdfTable = this.htmlData.nativeElement
+    var html = htmlToPdfmake(pdfTable.innerHTML);
+    const documentDefinition = { content: html };
+    pdfMake.createPdf(documentDefinition).download(); */
   }
 
 }

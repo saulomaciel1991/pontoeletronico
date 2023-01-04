@@ -120,7 +120,7 @@ WSMETHOD PUT WSSERVICE participantes
 		Aadd(aErro, .F.)
 	Else
 		Aadd(aErro, .T.)
-		Aadd(aErro, "Usuario ou Senha Invalido")
+		Aadd(aErro, "Senha atual está incorreta")
 	EndIf
 
 	lErro := aErro[1]
@@ -163,7 +163,7 @@ Static Function GetFilial(cId)
 		WHERE
 			SRA.%NotDel% AND
 			SRA.RA_CIC = %exp:cId% AND
-			SRA.RA_SITFOLH = ''
+			SRA.RA_SITFOLH IN (' ', 'F')
 	ENDSQL
 
 	If !TSRA->(Eof())

@@ -1,9 +1,10 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { PoModalComponent, PoNotificationService, PoToasterOrientation } from '@po-ui/ng-components';
+import { PoModalAction, PoModalComponent, PoNotificationService, PoToasterOrientation } from '@po-ui/ng-components';
 import { PoPageLoginLiterals } from '@po-ui/ng-templates';
 import { AuthService } from '../auth/auth.service';
 import { UserService } from '../user/user.service';
+import { NgForm } from '@angular/forms';
 
 @Component({
   selector: 'app-login',
@@ -15,6 +16,8 @@ import { UserService } from '../user/user.service';
 export class LoginComponent implements OnInit {
   @ViewChild(PoModalComponent, { static: true }) poModal!: PoModalComponent;
 
+  password = ''
+  cpf = ''
   customLiterals: PoPageLoginLiterals = {
     registerUrl: "Cadastrar Usuário",
     loginHint: 'Caso não possua usuário entre em contato com o suporte',
@@ -31,6 +34,27 @@ export class LoginComponent implements OnInit {
   myRecovery() {
     this.poModal.open()
   }
+
+  cancelar(){
+    this.poModal.close()
+  }
+
+  close: PoModalAction = {
+    action: () => {
+      this.poModal.close();
+    },
+    label: 'Cancelar',
+    danger: true
+  };
+
+  confirm: PoModalAction = {
+    action: () => {
+      this.poNotification.success("CPF: "+this.cpf+'\nSenha: '+this.password)
+      this.poModal.close()
+    },
+    label: 'Resetar',
+    danger: false
+  };
 
   constructor(
     private router: Router,
