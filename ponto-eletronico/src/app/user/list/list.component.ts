@@ -5,13 +5,6 @@ import { PontosService } from '../pontos.service';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
-//import pdfMake from 'pdfmake/build/pdfmake';
-import * as pdfMake from "pdfmake/build/pdfmake";
-import * as pdfFonts from "pdfmake/build/vfs_fonts";
-const htmlToPdfmake = require("html-to-pdfmake");
-(pdfMake as any).vfs = pdfFonts.pdfMake.vfs;
-//pdfMake.vsf = pdfFonts.pdfMake.vsf;
-
 @Component({
   selector: 'app-list',
   templateUrl: './list.component.html',
@@ -31,7 +24,7 @@ export class ListComponent implements OnInit {
   };
 
   public readonly actions: Array<PoPageAction> = [
-    { label: 'Exportar para PDF', action: this.savePDF.bind(this), icon: 'po-icon-pdf' },
+    { label: 'Exportar para PDF', action: this.openPDF.bind(this), icon: 'po-icon-pdf' },
   ]
 
   public readonly filters: Array<PoPageDynamicSearchFilters> = [
@@ -55,8 +48,6 @@ export class ListComponent implements OnInit {
     { property: 'matricula', visible: false, type: 'string' }
 
   ];
-
-
 
   horarios: Array<PoTableColumn> = [
     { property: 'dia', type: 'string', width: '12,5%', label: 'Dia' },
@@ -243,13 +234,6 @@ export class ListComponent implements OnInit {
       PDF.addImage(FILEURI, 'PNG', 0, position, fileWidth, fileHeight);
       PDF.save('espelho-ponto.pdf');
     });
-  }
-
-  public savePDF() {
-    /* const pdfTable = this.htmlData.nativeElement
-    var html = htmlToPdfmake(pdfTable.innerHTML);
-    const documentDefinition = { content: html };
-    pdfMake.createPdf(documentDefinition).download(); */
   }
 
 }
