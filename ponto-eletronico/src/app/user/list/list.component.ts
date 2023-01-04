@@ -131,14 +131,6 @@ export class ListComponent implements OnInit {
           if (v != undefined) {
             setTimeout(() => {
               this.itemsHorarios = v.horarios
-              v.horarios = v.horarios.map((item: any) => {
-                item['1S'] = item['1S'] + ':00'
-                item['2S'] = item['2S'] + ':00'
-                item['1E'] = item['1E'] + ':00'
-                item['2E'] = item['2E'] + ':00'
-                //console.log(item)
-              })
-
               this.loadingH = false
             }, 500);
 
