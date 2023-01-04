@@ -10,7 +10,7 @@
     (p-quick-search)="onQuickSearch($event)">
 
     <div class="table" id="htmlData" #htmlData>
-
+        <HEader *ngIf="false">HEADER</HEader>
         <div class="padding">
             <po-table
                 [p-loading]="loading"
@@ -18,6 +18,17 @@
                 [p-sort]="true"
                 [p-columns]="columns"
                 [p-items]="items"
+                [p-striped]="true">
+            </po-table>
+
+            <br>
+            <p class="po-font-text-large cor">Banco de Horas</p>
+            <po-table
+                [p-loading]="loadingB"
+                p-container="shadow"
+                [p-sort]="true"
+                [p-columns]="banco"
+                [p-items]="bancohorarios"
                 [p-striped]="true">
             </po-table>
 

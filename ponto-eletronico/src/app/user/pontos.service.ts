@@ -24,16 +24,6 @@ export class PontosService {
   turno = ''
   seq = ''
 
-
-
-  descarte: Array<any> = [
-    {
-      data: '2022-10-03',
-      hora: '18:24:00',
-      motivo: 'EXCLUSÃO MANUAL'
-    }
-  ]
-
   resumo: Array<any> = [
     {
       codigo: '001',
@@ -73,11 +63,13 @@ export class PontosService {
     );
   }
 
-  public listDescartes() {
-    return this.descarte
+  public getBancoHoras(){
+    let url = this.apiURL
+    return this.http.get<any>(url, httpOptions,  ).pipe(
+      map((resposta: any) => resposta)
+    );
   }
 
-  
   public listResumo() {
     return this.resumo
   }
