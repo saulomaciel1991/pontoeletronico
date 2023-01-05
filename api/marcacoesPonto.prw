@@ -215,7 +215,7 @@ Static Function GetTurno(cTurno, cSqTurno)
 
 	BEGINSQL ALIAS 'TSPJ'
 		SELECT
-			SPJ.PJ_HRTOTAL, SPJ.PJ_SEMANA
+			SPJ.PJ_HRTOTAL, SPJ.PJ_SEMANA, SPJ.PJ_HRSINT1
 		FROM %Table:SPJ% AS SPJ
 		WHERE
 			SPJ.%NotDel%
@@ -225,7 +225,7 @@ Static Function GetTurno(cTurno, cSqTurno)
 	ENDSQL
 
 	If !TSPJ->(Eof())
-		cTurno := ConvertHora(TSPJ->PJ_HRTOTAL)
+		cTurno := ConvertHora(TSPJ->PJ_HRTOTAL - TSPJ->PJ_HRSINT1)
 		cSqTurno := TSPJ->PJ_SEMANA
 	EndIf
 	TSPJ->(DbCloseArea())
