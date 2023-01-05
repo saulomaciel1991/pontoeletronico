@@ -4,9 +4,12 @@
 WSRESTFUL participantes DESCRIPTION 'Manipulacao de Clientes'
 	Self:SetHeader('Access-Control-Allow-Credentials' , "true")
 
+	WSDATA cpf AS Character
+
 	//Criação dos Metodos
 	WSMETHOD GET DESCRIPTION 'Buscar participante por cpf e senha' WSSYNTAX '/participantes' PATH '/'
-	WSMETHOD PUT DESCRIPTION 'Alterar senha do participante selecionado' WSSYNTAX '/pedidos' PATH '/'
+	WSMETHOD PUT cpf DESCRIPTION 'Buscar participante por cpf e senha' WSSYNTAX '/participantes/reset' PATH '/reset'
+	WSMETHOD PUT DESCRIPTION 'Alterar senha do participante selecionado' WSSYNTAX '/participantes' PATH '/'
 
 END WSRESTFUL
 
@@ -134,6 +137,66 @@ WSMETHOD PUT WSSERVICE participantes
 
 	// Define a resposta.
 	Self:SetResponse(EncodeUTF8(oResponse:toJson()))
+Return lRet
+
+WSMETHOD PUT cpf WSSERVICE participantes
+	// http://192.168.41.60:8090/rest/participantes/reset?cpf=09285259456&senha=811156
+	// http://localhost:8090/rest/participantes/reset?cpf=09285259456&senha=811156
+	Local cResponse := JsonObject():New()
+	Local lRet := .T.
+	Local aParams := Self:AQueryString
+	Local cCpf := ""
+	Local cSenha := ""
+	Local cSenhaResetada := ""
+	Local nPosId := aScan(aParams,{|x| x[1] == "CPF"})
+	Local nPosSen := aScan(aParams,{|x| x[1] == "SENHA"})
+	Local aArea := GetArea()
+	Local aAreaRD0 := RD0->(GetArea())
+
+	If nPosId > 0 .AND. nPosSen > 0
+		cCpf := aParams[nPosId,2]
+		cSenha := aParams[nPosSen,2]
+	EndIf
+
+	BEGINSQL ALIAS 'TSRA'
+		SELECT
+			YEAR(SRA.RA_NASC) AS NASC,
+  		YEAR(SRA.RA_ADMISSA) AS ADMISSAO,
+  		SRA.RA_CIC
+		FROM %Table:SRA% AS SRA
+		WHERE
+			SRA.%NotDel% AND
+			SRA.RA_CIC = %exp:cCpf% AND
+			SRA.RA_SITFOLH IN (' ', 'F')
+	ENDSQL
+
+	If !TSRA->(Eof())
+		cSenhaResetada := RIGHT(cValToChar(TSRA->NASC),2) + RIGHT(cValToChar(TSRA->ADMISSAO),2) + RIGHT(TSRA->RA_CIC,2)
+	EndIf
+	TSRA->(DbCloseArea())
+
+	If cSenha == cSenhaResetada
+		RD0->(DbSetOrder(6))
+		If RD0->(MsSeek(xFilial("RD0")+cCpf))
+			While !RD0->(Eof()) .AND. RD0->RD0_CIC == cCpf
+				If RD0->RD0_MSBLQL == '2'
+					RecLock("RD0", .F.)
+					Replace RD0_SENHA With cripSenha(cSenhaResetada)
+					MsUnlock()
+					cResponse['message'] := 'Senha resetada'
+				EndIf
+				RD0->(DbSkip())
+			EndDo
+		EndIf
+	Else
+		cResponse['erro'] := 403
+		cResponse['message'] := 'Senha informada não coincide com a senha resetada!'
+	EndIf
+
+	Self:SetContentType('application/json')
+	Self:SetResponse(EncodeUTF8(cResponse:toJson()))
+	RD0->(RestArea(aAreaRD0))
+	RestArea(aArea)
 Return lRet
 
 Static Function cripSenha(senha)
