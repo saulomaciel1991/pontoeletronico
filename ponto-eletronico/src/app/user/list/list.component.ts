@@ -5,6 +5,15 @@ import { PontosService } from '../pontos.service';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
+declare var require: any;
+
+//import * as pdfMake from "pdfmake/build/pdfmake";
+const pdfMake = require('pdfmake/build/pdfmake.js');
+const pdfFonts = require("pdfmake/build/vfs_fonts");
+import { map } from 'rxjs';
+import { CabecalhoService } from '../cabecalho.service';
+(pdfMake as any).vfs = pdfFonts.pdfMake.vfs;
+
 @Component({
   selector: 'app-list',
   templateUrl: './list.component.html',
@@ -19,6 +28,8 @@ export class ListComponent implements OnInit {
   loading = true
   loadingH = true
   loadingB = true
+  start = ''
+  end = ''
 
   customLiterals: PoPageDynamicSearchLiterals = {
     searchPlaceholder: 'Buscar uma data'
@@ -41,11 +52,11 @@ export class ListComponent implements OnInit {
     { property: '1S', width: '6,25%', label: '1ª Saída', type: 'time', format: 'HH:mm' },
     { property: '2E', width: '6,25%', label: '2ª Entrada', type: 'time', format: 'HH:mm' },
     { property: '2S', width: '6,25%', label: '2ª Saída', type: 'time', format: 'HH:mm' },
-    { property: 'abono', width: '6,25%', label: 'abono' },
+    { property: 'abono', width: '6,25%', label: 'Abono' },
     { property: 'horasExtras', width: '6,25%', label: 'Horas Extras', type: 'time', format: 'HH:mm' },
     { property: 'abstencao', width: '6,25%', label: 'Absten.', type: 'time', format: 'HH:mm' },
     { property: 'jornada', width: '6,25%', label: 'Jornada', type: 'time', format: 'HH:mm' },
-    { property: 'obs', width: '6,25%', label: 'Observação' },
+    { property: 'observacoes', width: '6,25%', label: 'Observação' },
     { property: 'matricula', visible: false, type: 'string' }
 
   ];
@@ -64,15 +75,19 @@ export class ListComponent implements OnInit {
   banco: Array<PoTableColumn> = [
     //{ property: 'bancoHoras', type: 'string', width: '32%', label: 'Banco de Horas' },
     { property: 'saldoAnterior', width: '25%', label: 'Saldo Anterior', type: 'time', format: 'HH:mm' },
-    { property: 'totalCreditos', width: '25%', label: 'Crédito', type:'time', format: 'HH:mm' },
-    { property: 'totalDebitos', width: '25%', label: 'Débito', type:'time', format: 'HH:mm' },
-    { property: 'saldoAtual', width: '25%', label: 'Saldo Atual', type:'time', format: 'HH:mm' },
+    { property: 'totalCreditos', width: '25%', label: 'Créditos', type: 'time', format: 'HH:mm' },
+    { property: 'totalDebitos', width: '25%', label: 'Débitos', type: 'time', format: 'HH:mm' },
+    { property: 'saldoAtual', width: '25%', label: 'Saldo Atual', type: 'time', format: 'HH:mm' },
 
 
 
   ];
 
-  constructor(private pontosService: PontosService, private poDialog: PoDialogService) { }
+  constructor(
+    private pontosService: PontosService,
+    private poDialog: PoDialogService,
+    private headerService: CabecalhoService
+  ) { }
 
   ngOnInit(): void {
   }
@@ -130,16 +145,16 @@ export class ListComponent implements OnInit {
 
   }
 
-  getBancoHora(dtini: string, dtfin: string){
+  getBancoHora(dtini: string, dtfin: string) {
     this.pontosService.getBancoHoras(dtini, dtfin)
-    .subscribe({
-      next: (v: any) =>{
-        if (v.bh != undefined){
-          this.bancohorarios = v.bh
-          this.loadingB = false
+      .subscribe({
+        next: (v: any) => {
+          if (v.bh != undefined) {
+            this.bancohorarios = v.bh
+            this.loadingB = false
+          }
         }
-      }
-    })
+      })
   }
 
   getHorarios(turno: string, seq: string) {
@@ -219,11 +234,15 @@ export class ListComponent implements OnInit {
     let end = (filter.dataATE)
 
     if (start !== undefined && end != undefined) {
+      this.start = start
+      this.end = end
       start = start.replaceAll('-', '')
       end = end.replaceAll('-', '')
     } else if (start !== undefined && end == undefined) {
+      this.start = start
       start = start.replaceAll('-', '')
       end = new Date().toISOString().slice(0, 10);
+      this.end = end
       end = end.replaceAll('-', '')
     }
     this.getlist(start, end);
@@ -235,28 +254,177 @@ export class ListComponent implements OnInit {
 
 
   public openPDF(): void {
-    var html = 'Empresa: BCI Comercializadora           cnpj: 19.191.0101/100-00'
-    /* let printContents: any = document.getElementById('htmlData');
-    var originalContents = document.body.innerHTML;
+    let header: any = {}
+    header = this.headerService.getHeader()
 
-    document.body.innerHTML = printContents.innerHTML;
+    let marcacoes = this.items
+    let columns = [
+      'Data', 'Dia', '1ª Entrada', '1ª Saída', '2ª Entrada', '2ª Saída',
+      'Abono  ', 'Horas Extras', 'Abstenção', 'Jornada', 'Observação']
+    let propM = ['data', 'dia', '1E', '1S', '2E', '2S', 'abono', 'horasExtras', 'abstencao', 'jornada', 'observacoes']
 
-    window.print();
+    let horas = this.bancohorarios
+    let horasCol = [
+      'Saldo Anterior', 'Créditos', 'Débitos', 'Saldo Atual'
+    ]
+    let horasProp = ['saldoAnterior', 'totalCreditos', 'totalDebitos', 'saldoAtual']
 
-    document.body.innerHTML = originalContents; */
-    let DATA: any = document.getElementById('htmlData');
-    html2canvas(DATA).then((canvas) => {
-      let fileWidth = 208;
-      let fileHeight = (canvas.height * fileWidth) / canvas.width;
-      const FILEURI = canvas.toDataURL('image/png');
-      let PDF = new jsPDF('p', 'mm', 'a4');
-      let position = 30;
-      
-      PDF.text(html, 10, 10, {baseline: 'top'})
-      //PDF.addPage()
-      PDF.addImage(FILEURI, 'PNG', 0, position, fileWidth, fileHeight);
-      PDF.save('espelho-ponto.pdf');
-    });
+    let turnos = this.itemsHorarios
+    let turnosCol = ['Dia', '1ª Entrada', '1ª Saída', '2ª Entrada', '2ª Saída', 'Turno']
+    let turnosProp = ['dia', '1E', '1S', '2E', '2S', 'turno']
+
+    var dd = {
+      pageMargins: [40, 150, 40, 60],
+      pageSize: 'A4',
+      pageOrientation: "landscape",
+      //header: `Espelho do Ponto ${this.start} - ${this.end}`,
+      header: {
+        stack: [
+          { text: `Espelho do Ponto ${this.start} - ${this.end}`, margin: [260, 5, 0, 5] },
+          {
+            columns: [
+              { text: `Empresa: ${header.empresa}`, margin: [15, 2, 5, 1] },
+              { text: `CNPJ: ${header.cnpj}`, margin: [15, 2, 5, 1] },
+            ]
+          },
+          {
+            columns: [
+              { text: `Endereço: ${header.endereco}`, margin: [15, 2, 5, 5] },
+              { text: `Emissão: ${header.emissao}`, margin: [15, 2, 5, 5] },
+            ]
+          },
+          { canvas: [{ type: 'line', x1: 15, y1: 0, x2: 732, y2: 0, lineWidth: 1 }] },
+          {
+            columns: [
+              { text: `Matrícula: ${header.matricula}`, margin: [15, 5, 5, 5] },
+              { text: `Nome: ${header.cnpj}`, margin: [15, 5, 5, 5] },
+              { text: `Admissão: ${header.admissao}`, margin: [15, 5, 5, 5] },
+            ]
+          },
+          {
+            columns: [
+              { text: `Função: ${header.funcao}`, margin: [15, 2, 5, 1] },
+              { text: `C.C: ${header.cc}`, margin: [15, 2, 5, 1] },
+              { text: `CPF: ${header.cpf}`, margin: [15, 2, 5, 1] },
+            ]
+          },
+          {
+            columns: [
+              { text: `categoria: ${header.categoria}`, margin: [15, 2, 5, 5] },
+              { text: `Situação: ${header.situacao}`, margin: [15, 2, 5, 5] },
+              { text: `Departamento: ${header.departamento}`, margin: [15, 2, 5, 5] },
+            ]
+
+          },
+          { canvas: [{ type: 'line', x1: 15, y1: 0, x2: 732, y2: 0, lineWidth: 1, }] },
+        ],
+        margin: [40, 5, 2, 5]
+      },
+      content: [
+        this.table(marcacoes, columns, propM),
+        { canvas: [{ type: 'line', x1: 15, y1: 15, x2: 732, y2: 15, lineWidth: 1, }] },
+        { text: 'Banco de Horas', margin: [15, 5, 5, 0] },
+        this.tableBH(horas, horasCol, horasProp),
+        { canvas: [{ type: 'line', x1: 15, y1: 15, x2: 732, y2: 15, lineWidth: 1, }] },
+        { text: 'Horários', margin: [15, 5, 5, 0] },
+        this.tableTurno(turnos, turnosCol, turnosProp),
+      ],
+      styles: {
+        header: {
+          margin: 'auto',
+          alignment: 'center',
+          bold: true
+        },
+      }
+    }
+
+    pdfMake.createPdf(dd).download("espelho-ponto.pdf");
   }
 
+
+  public buildTableBody(data: any, columns: any, col: any) {
+    //console.log(data)
+    let body = [];
+
+    body.push(columns);
+
+    data.forEach((row: any) => {
+      let dataRow: any = [];
+
+      col.forEach((column: any) => {
+        let rc
+        (row[column] != null) ? rc = row[column].toString() : rc = ''
+        dataRow.push(rc);
+      })
+      body.push(dataRow);
+    });
+
+    return body;
+  }
+
+  public table(data: any, columns: any, col: any) {
+    return {
+      margin: [15, 20, 0, 0],
+      //layout: 'lightHorizontalLines',
+      color: '#444',
+      fontSize: 12, bold: false,
+      alignment: 'center',
+      //styles: 'table',
+      table: {
+        headerRows: 1,
+        widths: ['auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 100,],
+        body: this.buildTableBody(data, columns, col),
+
+      },
+      layout: {
+        fillColor: function (i:any, node:any) {
+          return (i % 2 === 0) ? '#e5e5e5' : null;
+        }
+      }
+    };
+
+  }
+  public tableBH(data: any, columns: any, col: any) {
+    return {
+      margin: [15, 2, 0, 0],
+      //layout: 'lightHorizontalLines',
+      color: '#444',
+      fontSize: 12, bold: false,
+      alignment: 'center',
+      //styles: 'table',
+      table: {
+        headerRows: 1,
+        widths: [170, 170, 170, 172],
+        body: this.buildTableBody(data, columns, col),
+      },
+      layout: {
+        fillColor: function (i:any, node:any) {
+          return (i % 2 === 0) ? '#e5e5e5' : null;
+        }
+      }
+    };
+
+  }
+
+  public tableTurno(data: any, columns: any, col: any) {
+    return {
+      margin: [15, 2, 0, 0],
+      //layout: 'lightHorizontalLines',
+      color: '#444',
+      fontSize: 12, bold: false,
+      alignment: 'center',
+      //styles: 'table',
+      table: {
+        headerRows: 1,
+        widths: [80, 80, 80, 80, 80, 262],
+        body: this.buildTableBody(data, columns, col),
+      },
+      layout: {
+        fillColor: function (i:any, node:any) {
+          return (i % 2 === 0) ? '#e5e5e5' : null;
+        }
+      }
+    };
+
+  }
 }

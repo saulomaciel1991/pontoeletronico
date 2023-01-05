@@ -2,6 +2,7 @@ import { formatDate } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { PoDynamicViewField, PoNotificationService } from '@po-ui/ng-components';
 import { AuthService } from 'src/app/auth/auth.service';
+import { CabecalhoService } from '../cabecalho.service';
 import { UserService } from '../user.service';
 
 @Component({
@@ -32,7 +33,11 @@ export class InfoComponent implements OnInit {
     { property: 'departamento', label: 'Departamento', gridColumns: 4, gridSmColumns: 4 },
 
   ];
-  constructor(private userService: UserService, private poNotification: PoNotificationService, private auth: AuthService,) { }
+  constructor(
+    private userService: UserService,
+    private poNotification: PoNotificationService,
+    private headerService: CabecalhoService
+  ) { }
 
   ngOnInit(): void {
     this.getEmpresa()
@@ -45,10 +50,11 @@ export class InfoComponent implements OnInit {
               v.user[0].admissao = new Date(v.user[0].admissao).toLocaleDateString()
               v.user[0].cpf = this.formataCPF(v.user[0].cpf)
               this.funcionario = v.user[0]
-              this.dados = {...this.funcionario, ...this.empresa}
+              this.dados = { ...this.funcionario, ...this.empresa }
+              this.headerService.setHeader(this.dados)
               this.hidden = true
             }, 500);
-          }else {
+          } else {
             this.poNotification.error(v.message)
           }
         },
@@ -61,10 +67,10 @@ export class InfoComponent implements OnInit {
   }
   private formataCNPJ(cnpj: string): String {
     //'12.103.781/0001-29'
-    return (cnpj.substring(0,2))+'.'+cnpj.substring(2,5)+'.'+cnpj.substring(5,8)+'/'+cnpj.substring(8,12)+'-'+cnpj.substring(12)
+    return (cnpj.substring(0, 2)) + '.' + cnpj.substring(2, 5) + '.' + cnpj.substring(5, 8) + '/' + cnpj.substring(8, 12) + '-' + cnpj.substring(12)
   }
 
-  public getEmpresa(){
+  public getEmpresa() {
     this.empresa = this.userService.getFilial()
       .subscribe({
         next: (v: any) => {
@@ -78,7 +84,7 @@ export class InfoComponent implements OnInit {
                 emissao: new Date().toLocaleDateString()
               }
             }, 500);
-          }else {
+          } else {
             this.empresa = {
               empresa: '',
               cnpj: '',
