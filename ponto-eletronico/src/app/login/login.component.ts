@@ -35,26 +35,9 @@ export class LoginComponent implements OnInit {
     this.poModal.open()
   }
 
-  cancelar(){
+  cancelar() {
     this.poModal.close()
   }
-
-  close: PoModalAction = {
-    action: () => {
-      this.poModal.close();
-    },
-    label: 'Cancelar',
-    danger: true
-  };
-
-  confirm: PoModalAction = {
-    action: () => {
-      this.poNotification.success("CPF: "+this.cpf+'\nSenha: '+this.password)
-      this.poModal.close()
-    },
-    label: 'Resetar',
-    danger: false
-  };
 
   constructor(
     private router: Router,
@@ -89,6 +72,26 @@ export class LoginComponent implements OnInit {
         },
         complete: () => {
         }
+      })
+
+  }
+
+  resetPassword(form: NgForm) {
+    console.log(form.form.value)
+    let cpf = form.form.value.cpf
+    let senha = form.form.value.senha
+    this.userService.resetPassword(cpf, senha)
+      .subscribe({
+        next: (v: any) => {
+          if (v != undefined){
+            this.poNotification.success("Sua senha foi resetada com sucesso")
+            this.poModal.close()
+          }else{
+            this.poNotification.error("Sua senha não está no formato correto. Tente novamente")
+          }
+
+        }
+
       })
 
   }

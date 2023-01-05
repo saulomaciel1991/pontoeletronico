@@ -14,8 +14,7 @@
     (p-password-change)="passwordChange()">
 </po-page-login>
 
-<po-modal p-title="Deseja resetar a sua senha?" [p-hide-close]="true"
-    [p-primary-action]="confirm" [p-secondary-action]="close">
+<po-modal p-title="Deseja resetar a sua senha?" [p-hide-close]="true">
     <div>
         <div>
 
@@ -67,4 +66,11 @@
             </div>
         </form>
     </div>
+    <po-modal-footer>
+        <po-button p-label="Cancelar" p-kind="danger"
+            (p-click)="poModal.close()"> </po-button>
+        <po-button p-label="Resetar"
+            [p-disabled]="recoveryForm.invalid!"
+            p-kind="primary" (p-click)="resetPassword(recoveryForm)"> </po-button>
+    </po-modal-footer>
 </po-modal>
