@@ -59,11 +59,8 @@ export class UserService {
   }
 
   public resetPassword(cpf: string, senha: string){
-    let body = {
-      cpf: cpf,
-      senha: senha
-    }
-    return this.http.put<any>(this.apiURL + '/participantes/', JSON.stringify(body), httpOptions).pipe(take(1))
+    let url = this.apiURL+`/participantes/reset/?cpf=${cpf}&senha=${senha}`
+    return this.http.put<any>(url, httpOptions).pipe(take(1))
 
   }
 }
