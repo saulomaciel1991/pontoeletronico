@@ -83,17 +83,16 @@ export class LoginComponent implements OnInit {
     this.userService.resetPassword(cpf, senha)
       .subscribe({
         next: (v: any) => {
-          if (v != undefined){
+          if (v.erro == undefined){
             this.poNotification.success("Sua senha foi resetada com sucesso")
             this.poModal.close()
           }else{
-            this.poNotification.error("Sua senha não está no formato correto. Tente novamente")
+            this.poNotification.error("Senha informada não coincide com o padrão ou o CPF está incorreto. Tente novamente")
           }
 
         }
 
       })
-
   }
 
   passwordChange() {

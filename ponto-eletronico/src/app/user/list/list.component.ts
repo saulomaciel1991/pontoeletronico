@@ -25,6 +25,7 @@ export class ListComponent implements OnInit {
   items: Array<any> = []
   itemsHorarios: Array<any> = []
   bancohorarios: Array<any> = []
+  resumoItems: Array<any> = []
   loading = true
   loadingH = true
   loadingB = true
@@ -73,13 +74,16 @@ export class ListComponent implements OnInit {
   ];
 
   banco: Array<PoTableColumn> = [
-    //{ property: 'bancoHoras', type: 'string', width: '32%', label: 'Banco de Horas' },
-    { property: 'saldoAnterior', width: '25%', label: 'Saldo Anterior', type: 'time', format: 'HH:mm' },
-    { property: 'totalCreditos', width: '25%', label: 'Créditos', type: 'time', format: 'HH:mm' },
-    { property: 'totalDebitos', width: '25%', label: 'Débitos', type: 'time', format: 'HH:mm' },
-    { property: 'saldoAtual', width: '25%', label: 'Saldo Atual', type: 'time', format: 'HH:mm' },
+    { property: 'saldoAnterior', width: '25%', label: 'Saldo Anterior', type: 'string' },
+    { property: 'totalCreditos', width: '25%', label: 'Créditos', type: 'string' },
+    { property: 'totalDebitos', width: '25%', label: 'Débitos', type: 'string' },
+    { property: 'saldoAtual', width: '25%', label: 'Saldo Atual', type: 'string' },
+  ];
 
-
+  resumoCols: Array<PoTableColumn> = [
+    { property: 'codEvento', width: '20%', label: 'Código', type: 'string' },
+    { property: 'descEvento', width: '60%', label: 'Descrição', type: 'string' },
+    { property: 'totalHoras', width: '20%', label: 'Total de Horas', type: 'string' },
 
   ];
 
@@ -95,7 +99,7 @@ export class ListComponent implements OnInit {
   onLoadFields() {
 
     const today = new Date()
-    let month = today.getMonth() - 1 //por enquanto busca os pontos do mês anterior
+    let month = today.getMonth()
     let start = new Date(today.getFullYear(), month, 1).toISOString().slice(0, 10)
     let end = new Date(today.getFullYear(), month + 1, 0).toISOString().slice(0, 10)
     return {
@@ -111,11 +115,13 @@ export class ListComponent implements OnInit {
     this.pontosService.list(ini, fin)
       .subscribe({
         next: (v: any) => {
+          console.log(v)
           if (v.hasContent == true) {
             setTimeout(() => {
               let turno = v.marcacoes[0].turno
               let seq = v.marcacoes[0].seqTurno
               this.items = v.marcacoes
+              this.resumoItems = v.resumo
               //this.items = .sort( (a:any,b:any) => a.data - b.data );
               this.loading = false
               this.getHorarios(turno, seq)
@@ -273,6 +279,12 @@ export class ListComponent implements OnInit {
     let turnosCol = ['Dia', '1ª Entrada', '1ª Saída', '2ª Entrada', '2ª Saída', 'Turno']
     let turnosProp = ['dia', '1E', '1S', '2E', '2S', 'turno']
 
+    let resumo = this.resumoItems
+    let resumoCol = ['Código', 'Descrição', 'Total de Horas']
+    let resumoProp = ['codEvento', 'descEvento', 'totalHoras']
+
+
+
     var dd = {
       pageMargins: [40, 150, 40, 60],
       pageSize: 'A4',
@@ -328,6 +340,9 @@ export class ListComponent implements OnInit {
         { canvas: [{ type: 'line', x1: 15, y1: 15, x2: 732, y2: 15, lineWidth: 1, }] },
         { text: 'Horários', margin: [15, 5, 5, 0] },
         this.tableTurno(turnos, turnosCol, turnosProp),
+        { canvas: [{ type: 'line', x1: 15, y1: 15, x2: 732, y2: 15, lineWidth: 1, }] },
+        { text: '', margin: [15, 10, 5, 0] },
+        this.tableResumo(resumo, resumoCol, resumoProp),
       ],
       styles: {
         header: {
@@ -367,12 +382,12 @@ export class ListComponent implements OnInit {
       margin: [15, 20, 0, 0],
       //layout: 'lightHorizontalLines',
       color: '#444',
-      fontSize: 12, bold: false,
+      fontSize: 10, bold: false,
       alignment: 'center',
       //styles: 'table',
       table: {
         headerRows: 1,
-        widths: ['auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 100,],
+        widths: [60, 50, 50, 50, 50, 50, 50, 60, 50, 50, 100,],
         body: this.buildTableBody(data, columns, col),
 
       },
@@ -389,7 +404,7 @@ export class ListComponent implements OnInit {
       margin: [15, 2, 0, 0],
       //layout: 'lightHorizontalLines',
       color: '#444',
-      fontSize: 12, bold: false,
+      fontSize: 10, bold: false,
       alignment: 'center',
       //styles: 'table',
       table: {
@@ -411,12 +426,34 @@ export class ListComponent implements OnInit {
       margin: [15, 2, 0, 0],
       //layout: 'lightHorizontalLines',
       color: '#444',
-      fontSize: 12, bold: false,
+      fontSize: 10, bold: false,
       alignment: 'center',
       //styles: 'table',
       table: {
         headerRows: 1,
         widths: [80, 80, 80, 80, 80, 262],
+        body: this.buildTableBody(data, columns, col),
+      },
+      layout: {
+        fillColor: function (i:any, node:any) {
+          return (i % 2 === 0) ? '#e5e5e5' : null;
+        }
+      }
+    };
+
+  }
+
+  public tableResumo(data: any, columns: any, col: any) {
+    return {
+      margin: [15, 2, 0, 0],
+      //layout: 'lightHorizontalLines',
+      color: '#444',
+      fontSize: 10, bold: false,
+      alignment: 'center',
+      //styles: 'table',
+      table: {
+        headerRows: 1,
+        widths: [80, 400, 210],
         body: this.buildTableBody(data, columns, col),
       },
       layout: {
