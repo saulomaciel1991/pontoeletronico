@@ -57,7 +57,6 @@ export class PontosService {
   }
   public listHorarios() {
     let url = this.apiURL+ `/turnos/?turno=${this.turno}&seq=${this.seq}`
-    console.log(url)
     return this.http.get<any>(url, httpOptions,  ).pipe(
       map((resposta: any) => resposta)
     );
@@ -67,7 +66,6 @@ export class PontosService {
     let filial = this.userService.filatu
     let mat = this.userService.matricula
     let url = this.apiURL + `/bh/?FILIAL=${filial}&MATRICULA=${mat}&DTINICIAL=${dtini}&DTFINAL=${dtfin}`
-    console.log(url)
     return this.http.get<any>(url, httpOptions,  ).pipe(
       map((resposta: any) => resposta)
     );

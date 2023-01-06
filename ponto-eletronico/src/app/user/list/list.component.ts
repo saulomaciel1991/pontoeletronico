@@ -115,7 +115,6 @@ export class ListComponent implements OnInit {
     this.pontosService.list(ini, fin)
       .subscribe({
         next: (v: any) => {
-          console.log(v)
           if (v.hasContent == true) {
             setTimeout(() => {
               let turno = v.marcacoes[0].turno
@@ -211,7 +210,6 @@ export class ListComponent implements OnInit {
 
   onQuickSearch(filter: any) {
     filter = this.converteData(filter)
-    //console.log(filter)
     filter ? this.searchItems({ data: filter, dataATE: filter }) : this.resetFilters();
   }
 
@@ -358,7 +356,6 @@ export class ListComponent implements OnInit {
 
 
   public buildTableBody(data: any, columns: any, col: any) {
-    //console.log(data)
     let body = [];
 
     body.push(columns);
