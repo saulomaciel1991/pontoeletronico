@@ -77,7 +77,6 @@ export class LoginComponent implements OnInit {
   }
 
   resetPassword(form: NgForm) {
-    console.log(form.form.value)
     let cpf = form.form.value.cpf
     let senha = form.form.value.senha
     this.userService.resetPassword(cpf, senha)
