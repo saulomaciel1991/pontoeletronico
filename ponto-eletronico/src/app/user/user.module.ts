@@ -12,7 +12,7 @@ import { PoDynamicModule } from '@po-ui/ng-components';
 import { ListComponent } from './list/list.component';
 import { FormComponent } from './form/form.component'
 import { InfoComponent } from './info/info.component';
-import { ResumoComponent } from './resumo/resumo.component';
+
 
 
 @NgModule({
@@ -20,7 +20,6 @@ import { ResumoComponent } from './resumo/resumo.component';
     FormComponent,
     ListComponent,
     InfoComponent,
-    ResumoComponent
   ],
   imports: [
     CommonModule,
