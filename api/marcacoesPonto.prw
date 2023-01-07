@@ -340,7 +340,7 @@ Static Function GetResumo(aResumo, cFilFunc, cMatricula, cDataIni, cDataFin)
 		Aadd(aResumo, JsonObject():new())
 		nPos := Len(aResumo)
 		aResumo[nPos]['codEvento'] := asoma[nLinha,1]
-		aResumo[nPos]['descEvento'] := ALLTRIM(POSICIONE("SP9", 1, cFilFunc+ asoma[nLinha,1], "P9_DESC"))
+		aResumo[nPos]['descEvento'] := ALLTRIM(POSICIONE("SP9", 1, xFilial("SP9")+ asoma[nLinha,1], "P9_DESC"))
 		aResumo[nPos]['totalHoras'] := ConvertHora(MTOH(asoma[nLinha,2]))
 	Next
 
